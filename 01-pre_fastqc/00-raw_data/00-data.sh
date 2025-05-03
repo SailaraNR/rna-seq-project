@@ -90,3 +90,4 @@ done < "$FILENAME"
 
 echo "Finished. FASTQ files downloaded in $(pwd)"
 ls #para ver los archivos
+#linea de prueba
