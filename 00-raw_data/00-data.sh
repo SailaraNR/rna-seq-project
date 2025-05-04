@@ -2,7 +2,7 @@
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
 #Date: 1st may 2025
-#Version: 1.0
+#Version: 1.1
 
 #Usage example
 #00-data.sh -u URL
@@ -15,11 +15,13 @@
 echo "Let's check if the argument is correctly given"
 while getopts "u:hv" opt; do
         case $opt in
-                h) echo "You asked for usage help"\
-                   echo ""
-                v) echo "Version 1.0" ;;
+                h) echo "You asked for usage help" 
+                   echo "This script downloads rawdata if a file.txt with SRR accessions is given"
+                   echo "You will need to execute 00-data.sh -u file.txt" 
+                   echo "Then the raw sequences you want will be downloaded";;
+                v) echo "Version 1.1" ;;
                 u) URL="$OPTARG" ;;
-                ?) echo "Invalid option or missing argument" >&2\
+                ?) echo "Invalid option or missing argument" >&2
                    echo "Usage example: $0 -u URL" >&2\
                    exit 1;;
         esac
@@ -88,4 +90,3 @@ done < "$FILENAME"
 
 echo "Finished. FASTQ files downloaded in $(pwd)"
 ls #para ver los archivos
-#linea de prueba
