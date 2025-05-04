@@ -37,7 +37,6 @@ dependencies:
   - harfbuzz=11.1.0=h3beb420_0
   - hisat2=2.2.1=h503566f_8
   - hpack=4.1.0=pyhd8ed1ab_0
-  - htslib=1.21=h566b1c6_1
   - humanfriendly=10.0=pyh707e725_8
   - humanize=4.12.2=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
@@ -165,7 +164,6 @@ dependencies:
   - rich=14.0.0=pyh29332c3_0
   - rich-click=1.8.8=pyhd8ed1ab_0
   - rpds-py=0.24.0=py310hc1293b2_0
-  - samtools=1.21=h96c455f_1
   - seqtk=1.4=h577a1d6_3
   - setuptools=80.1.0=pyhff2d567_0
   - spectra=0.0.11=pyhd8ed1ab_2
