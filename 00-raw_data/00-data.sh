@@ -1,7 +1,5 @@
 #Este script acepta una URL que corresponde a un archivo con una lista de las accesion de las muestras que se queiren descargar
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
-#DEscomprime las muestras según su formato
-
 #Author: Laura Barreales y Sara Lévano
 #Date: 1st may 2025
 #Version: 1.0
