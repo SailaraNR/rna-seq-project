@@ -2,7 +2,7 @@
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
 #Date: 1st may 2025
-#Version: 1.1
+#Version: 1.2
 
 #Usage example
 #00-data.sh -u URL
@@ -19,10 +19,11 @@ while getopts "u:hv" opt; do
                    echo "This script downloads rawdata if a file.txt with SRR accessions is given"
                    echo "You will need to execute 00-data.sh -u file.txt" 
                    echo "Then the raw sequences you want will be downloaded";;
-                v) echo "Version 1.1" ;;
+                v) echo "Version 1.2" 
+                   exit 1;;
                 u) URL="$OPTARG" ;;
                 ?) echo "Invalid option or missing argument" >&2
-                   echo "Usage example: $0 -u URL" >&2\
+                   echo "Usage example: $0 -u URL" >&2
                    exit 1;;
         esac
 done
