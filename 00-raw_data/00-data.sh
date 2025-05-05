@@ -14,6 +14,8 @@
 #explain the code
 echo "Use -f for the file, -h for help and -v for the version"
 # getops y while para la ayuda, la versión y el ejemplo de uso
+$2=file
+
 {
 while getopts "f:hv" opt; do
         case $opt in
@@ -22,7 +24,7 @@ while getopts "f:hv" opt; do
                    exit 0;;
                 v) echo "Version 1.3" | tee -a logs/stdout
                    exit 0;;
-                f) echo "Abriendo el archivo $2 ..." | tee -a logs/stdout
+                f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout
                    exit 0;;
                 ?) echo -e "Invalid option or missing argument\n"\
                    "Usage example: $0 SRR_Acc_List" | tee -a logs/stderr
