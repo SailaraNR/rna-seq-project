@@ -2,7 +2,7 @@
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
 #Date: 1st may 2025
-#Version: 1.3
+#Version: 2.0
 
 #Usage example
 #00-data.sh -f SRR_Acc_List.txt
@@ -12,54 +12,70 @@
 ############################################################################################
 
 #explain the code
-echo "Use -f for the file, h for help and v for the version"
+echo "Use -f for the file, -h for help and -v for the version"
 # getops y while para la ayuda, la versión y el ejemplo de uso
-file=$2
 
 {
-while getopts "f:hv" opt; do
+#Vamos a ver si se han proporcionado argumetnos
+if [ $# -eq 0]; then
+        echo -e "No options provided. \n Use $0 -h for help"| tee -a logs/stdout
+        exit 1
+fi
+} >> logs/stdout 2>> logs/stderr
+
+{
+#Manjar opciones y argumentos
+while getopts ":f:hv" opt; do
         case $opt in
                 h) echo -e "You asked for usage help\n"\
                    "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
+                   echo -e "Usage example:\n\t sh $0 -h: provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
                    exit 0;;
-                v) echo "Version 1.3" | tee -a logs/stdout
+                v) echo "Version 2.0" | tee -a logs/stdout
                    exit 0;;
-                f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout
-                   exit 0;;
-                ?) echo -e "Invalid option or missing argument\n"\
-                   "Usage example: $0 SRR_Acc_List" | tee -a logs/stderr
+                f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout ;;
+                   file="$OPTARG"
+                \?) echo -e "Invalid option or missing argument\n"\
+                   "Usage example: $0 SRR_Acc_List.txt" | tee -a logs/stdout
                    exit 1;;
+                :) echo "Option -$OPTARG requieres an argument" | tee -a logs/stdout
+                   exit 1 ;;
         esac
 done
 } >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo es legible y ejecutable
-echo "Cheking $file permissions"
+echo "Cheking $file permissions" | tee -a logs/stdout
 
 {
-if [ -r $file ]; then
-        if [ -x $file ]; then
-                echo "This file is readable and executable" | tee -a logs/stdout
-        else
-                echo "This file is readable but not executable" | tee -a logs/stdout
-                chmod +x $file
-                echo "Now is ready" | tee -a logs/stdout
-        fi
-elif [ -x $file ]; then
-        echo "This file is not readable but executable" | tee -a logs/stdout
-        chmod +r $file
-        echo "Now is ready" | tee -a logs/stdout
+if [ -r "$file" && -x "$file" ]; then
+        echo "File is readable and executable" | tee -a logs/stdout
+elif [ -r "$file" ]; then
+        echo "File is readable but not executable. Fixing." | tee -a logs/stdout
+        chmod +x "$file"
+        echo "fixed" | tee -a logs/stdout
+elif [ -x "$file" ]; then
+        echo "File is executable but not readable" | tee -a logs/stdout
+        chmod +r "$file"
+        echo "Fieexd" | tee -a logs/stdout
 else
-        echo "This file es not readable not executable" | tee -a logs/stdout
-        chmod +rx $file
-        echo "Now is ready" | tee -a logs/stdout
-
+        echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
+        chmod +rx "$file"
+        echo "Fixed" | tee -a logs/stdout
+fi
+} >> logs/stdout 2>> logs/stderr
+#Vamos a comprobar que se ha dado un archivo 
+{
+if [[ -z "$file" ]]; then
+    echo "No file provided. Use -f <filename.txt>" | tee -a logs/stdout
+    echo "Usage: $0 -f <filename.txt>" | tee -a logs/stdout
+    exit 1
 fi
 } >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo no está vacío
 {
-echo "Cheking if the file exists and it's not empty"
+echo "Cheking if the file exists and it's not empty" | tee -a logs/stdout
 if [ -s $file ]; then
         echo "File exist and is not empty"  | tee -a logs/stdout
 else
@@ -70,7 +86,7 @@ fi
 
 #Vamos a comprobar que el arhivo es .txt
 {
-echo "Checling whether file extension is .txt"
+echo "Checling whether file extension is .txt" | tee -a logs/stdout
 if [ "$file" == *.txt ]; then
         echo "File extension is correct" | tee -a logs/stdout
 else
@@ -81,7 +97,7 @@ fi
 
 #Se leerán las accesion del archivo una a una y se descargaran las raw data correspondientes
 {
-echo "Processing accesions from $file..."
+echo "Processing accesions from $file..." | tee -a logs/stdout
 while read -r ACCESSION; do
   [[ -z "$ACCESSION" ]] && continue # comprueba que la linea que lee está o no vacía
   echo "Downloading $ACCESSION" | tee -a logs/stdout
