@@ -14,7 +14,7 @@
 #explain the code
 echo "Use -f for the file, -h for help and -v for the version"
 # getops y while para la ayuda, la versión y el ejemplo de uso
-$2=file
+file=$2
 
 {
 while getopts "f:hv" opt; do
