@@ -15,7 +15,7 @@
 echo "Use -f for the file, -h for help and -v for the version"
 # getops y while para la ayuda, la versión y el ejemplo de uso
 {
-while getopts "hv" opt; do
+while getopts "f:hv" opt; do
         case $opt in
                 h) echo -e "You asked for usage help\n"\
                    "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
@@ -30,13 +30,6 @@ while getopts "hv" opt; do
         esac
 done
 } >> logs/stdout 2>> logs/stderr
-
-# Mostrar uso correcto del script
-if [ -z "$2" ]; then
-    echo "Error: No se ha proporcionado un archivo.\n"\
-    "Uso: $0 -f SRR_Acc_List.txt" | tee -a logs/stderr
-    exit 1
-fi >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo es legible y ejecutable
 echo "Cheking $file permissions"
