@@ -12,7 +12,7 @@
 ############################################################################################
 
 #explain the code
-echo "Use -f for the file, -h for help and -v for the version"
+echo "Use -f for the file, h for help and v for the version"
 # getops y while para la ayuda, la versión y el ejemplo de uso
 file=$2
 
