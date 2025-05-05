@@ -25,18 +25,18 @@ while getopts "hv" opt; do
                 f) echo "Abriendo el archivo $2 ..." | tee -a logs/stdout
                    exit 0;;
                 ?) echo -e "Invalid option or missing argument\n"\
-                   "Usage example: $0 SRR_Acc_List" >&2
+                   "Usage example: $0 SRR_Acc_List" | tee -a logs/stderr
                    exit 1;;
         esac
 done
-} > logs/stdout 2> logs/stderr
+} >> logs/stdout 2>> logs/stderr
 
 # Mostrar uso correcto del script
 if [ -z "$2" ]; then
     echo "Error: No se ha proporcionado un archivo.\n"\
     "Uso: $0 -f SRR_Acc_List.txt" | tee -a logs/stderr
     exit 1
-fi > logs/stdout 2> logs/stderr
+fi >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo es legible y ejecutable
 echo "Cheking $file permissions"
@@ -59,7 +59,7 @@ else
         echo "Now is ready" | tee -a logs/stdout
 
 fi
-} > logs/stdout 2> logs/stderr
+} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo no está vacío
 {
@@ -70,7 +70,7 @@ else
         echo "file is empty"  | tee -a logs/stderr
         exit 1
 fi 
-} > logs/stdout 2> logs/stderr
+} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el arhivo es .txt
 {
@@ -81,7 +81,7 @@ else
         echo "File extension not correct. Must be .txt file" | tee -a logs/stderr
         exit 1
 fi 
-} > logs/stdout 2> logs/stderr
+} >> logs/stdout 2>> logs/stderr
 
 #Se leerán las accesion del archivo una a una y se descargaran las raw data correspondientes
 {
@@ -92,7 +92,7 @@ while read -r ACCESSION; do
   prefetch "$ACCESSION" #descarga .sra files
   fasterq-dump "$ACCESSION" --split-files #convierte .sra files en .fastq y los separa en dos archivos si se trata de lecturas pareadas
 done < "$file"
-} > logs/stdout 2> logs/stderr
+} >> logs/stdout 2>> logs/stderr
 
 echo "Finished. FASTQ files downloaded in $(pwd)" | tee -a logs/stdout
 ls #para ver los archivos
