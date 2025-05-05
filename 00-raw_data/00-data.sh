@@ -44,6 +44,7 @@ if [ -r $file ]; then
                 echo "This file is readable but not executable" | tee -a logs/stdout
                 chmod +x $file
                 echo "Now is ready" | tee -a logs/stdout
+        fi
 elif [ -x $file ]; then
         echo "This file is not readable but executable" | tee -a logs/stdout
         chmod +r $file
@@ -86,6 +87,8 @@ while read -r ACCESSION; do
   echo "Downloading $ACCESSION" | tee -a logs/stdout
   prefetch "$ACCESSION" #descarga .sra files
   fasterq-dump "$ACCESSION" --split-files #convierte .sra files en .fastq y los separa en dos archivos si se trata de lecturas pareadas
+  mv "$ACCESSION".sra results/ 2>> logs/stderr
+  mv "$ACCESSION"_*.fastq results/ 2>> logs/stderr
 done < "$file"
 } >> logs/stdout 2>> logs/stderr
 
