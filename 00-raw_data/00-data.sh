@@ -12,13 +12,13 @@
 ############################################################################################
 
 #explain the code
-echo "Use -f for the file, -h for help and -v for the version"
+echo "Use -f for the file, -h for help and -v for the version" | tee -a logs/stdout
 # getops y while para la ayuda, la versión y el ejemplo de uso
 
 {
 #Vamos a ver si se han proporcionado argumetnos
-if [ $# -eq 0]; then
-        echo -e "No options provided. \n Use $0 -h for help"| tee -a logs/stdout
+if [ $# -eq 0 ]; then
+        echo -e "No options provided. \nUse $0 -h for help"| tee -a logs/stdout
         exit 1
 fi
 } >> logs/stdout 2>> logs/stderr
@@ -29,49 +29,29 @@ while getopts ":f:hv" opt; do
         case $opt in
                 h) echo -e "You asked for usage help\n"\
                    "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
-                   echo -e "Usage example:\n\t sh $0 -h: provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
+                   echo -e "Usage example:\n\t sh $0 -h: Provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: Downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
                    exit 0;;
                 v) echo "Version 2.0" | tee -a logs/stdout
                    exit 0;;
-                f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout ;;
-                   file="$OPTARG"
+                f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout 
+                   file="$OPTARG" ;;
                 \?) echo -e "Invalid option or missing argument\n"\
                    "Usage example: $0 SRR_Acc_List.txt" | tee -a logs/stdout
                    exit 1;;
-                :) echo "Option -$OPTARG requieres an argument" | tee -a logs/stdout
+                :) echo "Option -$OPTARG requieres an argument" | tee -a logs/stdout #si pone solo -f no sirve
                    exit 1 ;;
         esac
 done
 } >> logs/stdout 2>> logs/stderr
 
-#Vamos a comprobar que el archivo es legible y ejecutable
-echo "Cheking $file permissions" | tee -a logs/stdout
-
-{
-if [ -r "$file" && -x "$file" ]; then
-        echo "File is readable and executable" | tee -a logs/stdout
-elif [ -r "$file" ]; then
-        echo "File is readable but not executable. Fixing." | tee -a logs/stdout
-        chmod +x "$file"
-        echo "fixed" | tee -a logs/stdout
-elif [ -x "$file" ]; then
-        echo "File is executable but not readable" | tee -a logs/stdout
-        chmod +r "$file"
-        echo "Fieexd" | tee -a logs/stdout
-else
-        echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
-        chmod +rx "$file"
-        echo "Fixed" | tee -a logs/stdout
-fi
-} >> logs/stdout 2>> logs/stderr
 #Vamos a comprobar que se ha dado un archivo 
-{
-if [[ -z "$file" ]]; then
-    echo "No file provided. Use -f <filename.txt>" | tee -a logs/stdout
-    echo "Usage: $0 -f <filename.txt>" | tee -a logs/stdout
-    exit 1
-fi
-} >> logs/stdout 2>> logs/stderr
+#{
+#if [[ -z "$file" ]]; then
+#    echo "No file provided. Use -f <filename.txt>" | tee -a logs/stdout
+#    echo "Usage: $0 -f <filename.txt>" | tee -a logs/stdout
+#    exit 1
+#fi
+#} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo no está vacío
 {
@@ -93,6 +73,27 @@ else
         echo "File extension not correct. Must be .txt file" | tee -a logs/stderr
         exit 1
 fi 
+} >> logs/stdout 2>> logs/stderr
+
+#Vamos a comprobar que el archivo es legible y ejecutable
+echo "Cheking $file permissions" | tee -a logs/stdout
+
+{
+if [[ -r "$file" && -x "$file" ]]; then
+        echo "File is readable and executable" | tee -a logs/stdout
+elif [ -r "$file" ]; then
+        echo "File is readable but not executable. Fixing." | tee -a logs/stdout
+        chmod +x "$file"
+        echo "fixed" | tee -a logs/stdout
+elif [ -x "$file" ]; then
+        echo "File is executable but not readable" | tee -a logs/stdout
+        chmod +r "$file"
+        echo "Fieexd" | tee -a logs/stdout
+else
+        echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
+        chmod +rx "$file"
+        echo "Fixed" | tee -a logs/stdout
+fi
 } >> logs/stdout 2>> logs/stderr
 
 #Se leerán las accesion del archivo una a una y se descargaran las raw data correspondientes
