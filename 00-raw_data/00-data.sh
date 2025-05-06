@@ -15,15 +15,12 @@
 echo "Use -f for the file, -h for help and -v for the version" | tee -a logs/stdout
 # getops y while para la ayuda, la versión y el ejemplo de uso
 
-{
 #Vamos a ver si se han proporcionado argumetnos
 if [ $# -eq 0 ]; then
         echo -e "No options provided. \nUse $0 -h for help"| tee -a logs/stdout
         exit 1
 fi
-} >> logs/stdout 2>> logs/stderr
 
-{
 #Manjar opciones y argumentos
 while getopts ":f:hv" opt; do
         case $opt in
@@ -42,7 +39,6 @@ while getopts ":f:hv" opt; do
                    exit 1 ;;
         esac
 done
-} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que se ha dado un archivo 
 #{
@@ -54,7 +50,6 @@ done
 #} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo no está vacío
-{
 echo "Cheking if the file exists and it's not empty" | tee -a logs/stdout
 if [ -s $file ]; then
         echo "File exist and is not empty"  | tee -a logs/stdout
@@ -62,10 +57,8 @@ else
         echo "file is empty"  | tee -a logs/stderr
         exit 1
 fi 
-} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el arhivo es .txt
-{
 echo "Checling whether file extension is .txt" | tee -a logs/stdout
 if [ "$file" == *.txt ]; then
         echo "File extension is correct" | tee -a logs/stdout
@@ -73,12 +66,10 @@ else
         echo "File extension not correct. Must be .txt file" | tee -a logs/stderr
         exit 1
 fi 
-} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo es legible y ejecutable
 echo "Cheking $file permissions" | tee -a logs/stdout
 
-{
 if [[ -r "$file" && -x "$file" ]]; then
         echo "File is readable and executable" | tee -a logs/stdout
 elif [ -r "$file" ]; then
@@ -94,10 +85,8 @@ else
         chmod +rx "$file"
         echo "Fixed" | tee -a logs/stdout
 fi
-} >> logs/stdout 2>> logs/stderr
 
 #Se leerán las accesion del archivo una a una y se descargaran las raw data correspondientes
-{
 echo "Processing accesions from $file..." | tee -a logs/stdout
 while read -r ACCESSION; do
   [[ -z "$ACCESSION" ]] && continue # comprueba que la linea que lee está o no vacía
@@ -107,7 +96,6 @@ while read -r ACCESSION; do
   mv "$ACCESSION".sra results/ 2>> logs/stderr
   mv "$ACCESSION"_*.fastq results/ 2>> logs/stderr
 done < "$file"
-} >> logs/stdout 2>> logs/stderr
 
 echo "Finished. FASTQ files downloaded in $(pwd)" | tee -a logs/stdout
 ls #para ver los archivos
