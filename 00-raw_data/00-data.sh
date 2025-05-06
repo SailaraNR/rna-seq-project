@@ -1,8 +1,8 @@
 #Este script acepta una URL que corresponde a un archivo con una lista de las accesion de las muestras que se queiren descargar
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
-#Date: 1st may 2025
-#Version: 2.0
+#Start date: 1st may 2025
+#Version: 2.0.1
 
 #Usage example
 #00-data.sh -f SRR_Acc_List.txt
@@ -28,26 +28,17 @@ while getopts ":f:hv" opt; do
                    "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
                    echo -e "Usage example:\n\t sh $0 -h: Provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: Downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
                    exit 0;;
-                v) echo "Version 2.0" | tee -a logs/stdout
+                v) echo "Version 2.0.1" | tee -a logs/stdout
                    exit 0;;
                 f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout 
                    file="$OPTARG" ;;
                 \?) echo -e "Invalid option or missing argument\n"\
-                   "Usage example: $0 SRR_Acc_List.txt" | tee -a logs/stdout
+                   "Usage example: $0 -f SRR_Acc_List.txt" | tee -a logs/stdout
                    exit 1;;
                 :) echo "Option -$OPTARG requieres an argument" | tee -a logs/stdout #si pone solo -f no sirve
                    exit 1 ;;
         esac
 done
-
-#Vamos a comprobar que se ha dado un archivo 
-#{
-#if [[ -z "$file" ]]; then
-#    echo "No file provided. Use -f <filename.txt>" | tee -a logs/stdout
-#    echo "Usage: $0 -f <filename.txt>" | tee -a logs/stdout
-#    exit 1
-#fi
-#} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo no está vacío
 echo "Cheking if the file exists and it's not empty" | tee -a logs/stdout
