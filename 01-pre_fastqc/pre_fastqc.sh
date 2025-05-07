@@ -1,3 +1,4 @@
+# !/bin/bash
 #Este script coge los archivos de la carpeta 00 qeu corresponden a las raw-data y analiza su calidad de secuencia
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
@@ -8,6 +9,10 @@
 #No arguments expected, but -v and -h are available
 
 #######################################################################
+
+# inicialización de logs vacíos
+cat /dev/null > logs/stdout
+cat /dev/null > logs/stderr
 
 #explain the code
 echo -e "Use -h for help or -v for the version. \nBut do not introduce any arguments or options for checking the quality score" | tee -a logs/stdout
@@ -34,13 +39,21 @@ while getopts "hv" opt; do
     esac
 done
 
-for file in ../00-raw_data/results; do
+directory="/rna-seq-project/00-raw_data/results"
+
+# Check if the target is not a directory
+if [ ! -d "$directory" ]; then
+        echo "This is not a directory" | tee -a logs/stderr
+        exit 1
+fi
+
+for file in "$directory"; do
         #Vamos a comprobar que el archivo no está vacío
-        echo "Checking if the file exists and it's not empty" | tee -a logs/stdout
-        if [ -s $file ]; then
-            echo "File exist and is not empty"  | tee -a logs/stdout
+        echo "Checking if $file exists and it's not empty" | tee -a logs/stdout
+        if [[ -f "$file" && -s "$file" ]]; then
+            echo "$file exist and is not empty"  | tee -a logs/stdout
          else
-            echo "file is empty"  | tee -a logs/stderr
+            echo "$file is not a file or is empty"  | tee -a logs/stderr
             exit 1
         fi 
 
@@ -71,6 +84,8 @@ for file in ../00-raw_data/results; do
             echo "Checking quality score in $file" | tee -a logs/stdout
             fastqc $file -o ./results/fastqc_$file.html | tee -a logs/stdout #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
             echo "Fastqc analysis completed for $file" | tee -a logs/stdout
+        else
+            echo "this is not .fastq, moving to the next..."
         fi; 2>> logs/stderr
 done; 2>> logs/stderr
 
