@@ -46,7 +46,7 @@ while getopts ":f:hv" opt; do
 done
 
 #Vamos a comprobar que el archivo no está vacío
-echo "Cheking if the file exists and it's not empty" | tee -a logs/stdout
+echo "Checking if the file exists and it's not empty" | tee -a logs/stdout
 if [ -s $file ]; then
         echo "File exist and is not empty"  | tee -a logs/stdout
 else
@@ -55,7 +55,7 @@ else
 fi 
 
 #Vamos a comprobar que el arhivo es .txt
-echo "Checling whether file extension is .txt" | tee -a logs/stdout
+echo "Checking whether file extension is .txt" | tee -a logs/stdout
 if [ "$file" == *.txt ]; then
         echo "File extension is correct" | tee -a logs/stdout
 else
@@ -64,7 +64,7 @@ else
 fi 
 
 #Vamos a comprobar que el archivo es legible y ejecutable
-echo "Cheking $file permissions" | tee -a logs/stdout
+echo "Checking $file permissions" | tee -a logs/stdout
 
 if [[ -r "$file" && -x "$file" ]]; then
         echo "File is readable and executable" | tee -a logs/stdout
