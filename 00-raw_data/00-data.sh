@@ -1,8 +1,8 @@
 #Este script acepta una URL que corresponde a un archivo con una lista de las accesion de las muestras que se queiren descargar
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
-#Date: 1st may 2025
-#Version: 2.0
+#Start date: 1st may 2025
+#Version: 2.0.1
 
 #Usage example
 #00-data.sh -f SRR_Acc_List.txt
@@ -44,15 +44,6 @@ while getopts ":f:hv" opt; do
 
         esac
 done
-
-#Vamos a comprobar que se ha dado un archivo 
-#{
-#if [[ -z "$file" ]]; then
-#    echo "No file provided. Use -f <filename.txt>" | tee -a logs/stdout
-#    echo "Usage: $0 -f <filename.txt>" | tee -a logs/stdout
-#    exit 1
-#fi
-#} >> logs/stdout 2>> logs/stderr
 
 #Vamos a comprobar que el archivo no está vacío
 echo "Cheking if the file exists and it's not empty" | tee -a logs/stdout
