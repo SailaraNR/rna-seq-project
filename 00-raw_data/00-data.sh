@@ -11,7 +11,11 @@
 
 ############################################################################################
 
-#explain the code
+# inicialización de logs vacíos
+cat /dev/null > stdout
+cat /dev/null > stderr
+
+# explain the code
 echo "Use -f for the file, -h for help and -v for the version" | tee -a logs/stdout
 # getops y while para la ayuda, la versión y el ejemplo de uso
 
@@ -21,22 +25,23 @@ if [ $# -eq 0 ]; then
         exit 1
 fi
 
-#Manjar opciones y argumentos
+#Manejar opciones y argumentos
 while getopts ":f:hv" opt; do
         case $opt in
                 h) echo -e "You asked for usage help\n"\
                    "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
                    echo -e "Usage example:\n\t sh $0 -h: Provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: Downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
                    exit 0;;
-                v) echo "Version 2.0" | tee -a logs/stdout
+                v) echo "Version 1.0" | tee -a logs/stdout
                    exit 0;;
                 f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout 
                    file="$OPTARG" ;;
-                \?) echo -e "Invalid option or missing argument\n"\
-                   "Usage example: $0 SRR_Acc_List.txt" | tee -a logs/stdout
-                   exit 1;;
                 :) echo "Option -$OPTARG requieres an argument" | tee -a logs/stdout #si pone solo -f no sirve
                    exit 1 ;;
+                \?) echo -e "Invalid option or missing argument\n"\
+                   "Usage example: $0 SRR_Acc_List.txt" | tee -a logs/stdout
+                   exit 1 ;;
+
         esac
 done
 
@@ -92,9 +97,9 @@ while read -r ACCESSION; do
   [[ -z "$ACCESSION" ]] && continue # comprueba que la linea que lee está o no vacía
   echo "Downloading $ACCESSION" | tee -a logs/stdout
   prefetch "$ACCESSION" #descarga .sra files
-  fasterq-dump "$ACCESSION" --split-files #convierte .sra files en .fastq y los separa en dos archivos si se trata de lecturas pareadas
+  fasterq-dump --split-files "$ACCESSION" #convierte .sra files en .fastq y los separa en dos archivos si se trata de lecturas pareadas
   mv "$ACCESSION".sra results/ 2>> logs/stderr
-  mv "$ACCESSION"_*.fastq results/ 2>> logs/stderr
+  mv "$ACCESSION"_*.fastq results/"$ACCESSION" 2>> logs/stderr
 done < "$file"
 
 echo "Finished. FASTQ files downloaded in $(pwd)" | tee -a logs/stdout
