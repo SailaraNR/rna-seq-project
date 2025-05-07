@@ -15,7 +15,7 @@ echo -e "Use -h for help or -v for the version. \nBut do not introduce any argum
 
 #Vamos a ver si se han proporcionado el número de argumentos correctos (0 o 1)
 if [ $# -gt 1 ]; then
-        echo -e "More than 1 option provided. \nRun $0 -h for usage help"| tee -a logs/stdout
+        echo -e "More than 1 option provided. \nRun $0 -h for usage help"| tee -a logs/stderr
         exit 1
 fi
 
@@ -29,63 +29,59 @@ while getopts "hv" opt; do
         v) echo "Version 1.2" | tee -a logs/stdout
             exit 0;;
         \?) echo -e "Invalid option\n\ 
-            Usage example: $0 " | tee -a logs/stdout
+            Usage example: $0 " | tee -a logs/stderr
             exit 1;; #si pone simbolos raros no sirve
     esac
 done
 
 for file in ../00-raw_data/results; do
-    #Vamos a comprobar que el archivo no está vacío
-    echo "Cheking if the file exists and it's not empty" | tee -a logs/stdout
-    if [ -s $file ]; then
+        #Vamos a comprobar que el archivo no está vacío
+        echo "Checking if the file exists and it's not empty" | tee -a logs/stdout
+        if [ -s $file ]; then
             echo "File exist and is not empty"  | tee -a logs/stdout
-    else
+         else
             echo "file is empty"  | tee -a logs/stderr
             exit 1
-    fi 
+        fi 
 
-    #Vamos a comprobar que el arhivo es .fastqc
-    echo "Checling whether file extension is .fastq" | tee -a logs/stdout
-    if [ "$file" == *.fastq ]; then
+        #Vamos a comprobar que el arhivo es .fastqc
+        echo "Checking whether file extension is .fastq" | tee -a logs/stdout
+        if [ "$file" == *.fastq ]; then
             echo "File extension is correct" | tee -a logs/stdout
-    else
-            echo "File extension not correct. Must be .fastq file" | tee -a logs/stderr
-            exit 1
-    fi 
+            #Vamos a comprobar que el archivo es legible y ejecutable
+            echo "Checking $file permissions" | tee -a logs/stdout
 
-    #Vamos a comprobar que el archivo es legible y ejecutable
-    echo "Cheking $file permissions" | tee -a logs/stdout
-
-    if [[ -r "$file" && -x "$file" ]]; then
-            echo "File is readable and executable" | tee -a logs/stdout
-    elif [ -r "$file" ]; then
-            echo "File is readable but not executable. Fixing." | tee -a logs/stdout
-            chmod +x "$file"
-            echo "fixed" | tee -a logs/stdout
-    elif [ -x "$file" ]; then
-            echo "File is executable but not readable" | tee -a logs/stdout
-            chmod +r "$file"
-            echo "Fieexd" | tee -a logs/stdout
-    else
-            echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
-            chmod +rx "$file"
-            echo "Fixed" | tee -a logs/stdout
+            if [[ -r "$file" && -x "$file" ]]; then
+                echo "File is readable and executable" | tee -a logs/stdout
+            elif [ -r "$file" ]; then
+                echo "File is readable but not executable. Fixing." | tee -a logs/stdout
+                chmod +x "$file"
+                echo "fixed" | tee -a logs/stdout
+            elif [ -x "$file" ]; then
+                echo "File is executable but not readable" | tee -a logs/stdout
+                chmod +r "$file"
+                echo "Fiexd" | tee -a logs/stdout
+            else
+                echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
+                chmod +rx "$file"
+                echo "Fixed" | tee -a logs/stdout
+            fi
         
-    fi
-    #Ahora vamos a comprobar que la calidad de la secuencia con fastqc
-    echo "Cheking quality score in $file"
-    fastqc $file -o ./results/fastqc_$file.html #-o guarda los archivos en esa ruta, que en este caso es la carpeta results de la carpeta 01
-    echo "Fastqc analysis completed for $file"
-done 
+            #Ahora vamos a comprobar que la calidad de la secuencia con fastqc
+            echo "Checking quality score in $file" | tee -a logs/stdout
+            fastqc $file -o ./results/fastqc_$file.html | tee -a logs/stdout #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
+            echo "Fastqc analysis completed for $file" | tee -a logs/stdout
+        fi; 2>> logs/stderr
+done; 2>> logs/stderr
 
 echo "Now Multiqc will run in order to make a summary of the analysis"
-echo "Bur first it will check if files' extensions are .html after fastqc analysis"
+echo "But first it will check if files' extensions are .html after fastqc analysis"
 #Vamos a comprobar que el arhivo es .html
-    echo "Checling whether file extension is .html" | tee -a logs/stdout
+    echo "Checking whether file extension is .html" | tee -a logs/stdout
     if [ "$file" == *.html ]; then
             echo "File extension is correct" | tee -a logs/stdout
     else
-            echo "File extension not correct. Must be .fastq file" | tee -a logs/stderr
+            echo "File extension not correct. Must be .html file" | tee -a logs/stderr
             exit 1
     fi 
 multiqc ./results -n multiqc_analysis.html #multiqc se va a ejecutar en el 01/results que es donde se han guardado las secuencias fastqc
