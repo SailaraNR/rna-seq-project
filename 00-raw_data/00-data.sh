@@ -12,8 +12,8 @@
 ############################################################################################
 
 # inicialización de logs vacíos
-cat /dev/null > stdout
-cat /dev/null > stderr
+cat /dev/null > logs/stdout
+cat /dev/null > logs/stderr
 
 # explain the code
 echo "Use -f for the file, -h for help and -v for the version" | tee -a logs/stdout
