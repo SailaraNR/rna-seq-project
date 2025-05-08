@@ -39,15 +39,16 @@ while getopts "hv" opt; do
     esac
 done
 
-directory="/rna-seq-project/00-raw_data/results"
+input_path="/home/saral_ubuntu/bioprogra/rna-seq-project/00-raw_data"
+output_path="/home/saral_ubuntu/bioprogra/rna-seq-project/01-pre_fastqc"
 
 # Check if the target is not a directory
-if [ ! -d "$directory" ]; then
+if [ ! -d "$input_path" ]; then
         echo "This is not a directory" | tee -a logs/stderr
         exit 1
 fi
 
-for file in "$directory"; do
+for file in "$input_path"; do
         #Vamos a comprobar que el archivo no está vacío
         echo "Checking if $file exists and it's not empty" | tee -a logs/stdout
         if [[ -f "$file" && -s "$file" ]]; then
@@ -82,7 +83,7 @@ for file in "$directory"; do
         
             #Ahora vamos a comprobar que la calidad de la secuencia con fastqc
             echo "Checking quality score in $file" | tee -a logs/stdout
-            fastqc $file -o ./results/fastqc_$file.html | tee -a logs/stdout #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
+            fastqc $input_path/*.fastq -o $output_path | tee -a logs/stdout #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
             echo "Fastqc analysis completed for $file" | tee -a logs/stdout
         else
             echo "this is not .fastq, moving to the next..."
