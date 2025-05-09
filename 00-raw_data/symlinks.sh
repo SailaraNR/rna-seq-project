@@ -93,7 +93,7 @@ for file in "$directory"/*; do
     #Vamos a comprobar que haya ido bien la creación del link
     if [ $? != 0 ]; then
         echo "Something went wrong during symbolic links creation for file $sample" | tee -a logs/stderr
-        exit 1
+        exit 1  
     fi
     echo "Symbolic link created for $file and named $sample" | tee -a logs/stdout
 done
