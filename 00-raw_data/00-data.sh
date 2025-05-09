@@ -3,7 +3,7 @@
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
 #Start date: 1st may 2025
-#Version: 2.0.1
+version=2.0.2
 
 #Usage example
 #00-data.sh -f SRR_Acc_List.txt
@@ -18,7 +18,6 @@ cat /dev/null > logs/stderr
 
 # explain the code
 echo "Use -f for the file, -h for help and -v for the version" | tee -a logs/stdout
-# getops y while para la ayuda, la versión y el ejemplo de uso
 
 #Vamos a ver si se han proporcionado argumetnos
 if [ $# -eq 0 ]; then
@@ -33,7 +32,7 @@ while getopts ":f:hv" opt; do
                    "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
                    echo -e "Usage example:\n\t sh $0 -h: Provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: Downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
                    exit 0;;
-                v) echo "Version 1.0" | tee -a logs/stdout
+                v) echo $version | tee -a logs/stdout
                    exit 0;;
                 f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout 
                    file="$OPTARG" ;;
