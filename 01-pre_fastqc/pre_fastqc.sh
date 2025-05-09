@@ -3,7 +3,7 @@
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
 #Start date: 4th May 2025
-version= Version 1.5
+version= Version 1.6
 
 #Usage example: pre-fastqc.sh
 #No arguments expected, but -v and -h are available
@@ -50,7 +50,7 @@ if [ ! -d "$input_path" ]; then
         exit 1
 fi
 
-for file in "$input_path"; do
+{for file in "$input_path"/*; do
         #Vamos a comprobar que el archivo no está vacío
         sample=$(basename "$file") #Nos quedamos con el nombre de la muestra
         echo "Checking if $sample exists and it's not empty" | tee -a logs/stdout
@@ -86,18 +86,20 @@ for file in "$input_path"; do
         
             #Ahora vamos a comprobar que la calidad de la secuencia con fastqc
             echo "Checking quality score in $sample" | tee -a logs/stdout
-            #creo que podría ponerse así fastqc $file -o $output_path | tee -a logs/stdout, porque $file debería ser la ruta absoluta del archivo (al menos así era en el archivo symlinks)
-            fastqc $input_path/*.fastq -o $output_path | tee -a logs/stdout #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
+            creo que podría ponerse así fastqc $file -o $output_path | tee -a logs/stdout #porque $file debería ser la ruta absoluta del archivo (al menos así era en el archivo symlinks)
+           
+            #quitaría la linea de abajo, está mal para este bucle concreto
+            #fastqc $input_path/*.fastq -o $output_path | tee -a logs/stdout #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
             echo "Fastqc analysis completed for $sample" | tee -a logs/stdout
         else
             echo "this is not .fastq, moving to the next..." #Si funciona lo de guardar los symlinks en 00/results no hace falta esto, pero se podría dejar como cortafuegos
         fi; 2>> logs/stderr
-done; 2>> logs/stderr
+done} 2>> logs/stderr
 
 echo "Now Multiqc will run in order to make a summary of the analysis"
 echo "But first it will check if files' extensions are .html after fastqc analysis"
 #Vamos a comprobar que el arhivo es .html
-for $file in $output_path; do
+for $file in "$output_path"/*; do
     echo "Checking whether file extension is .html" | tee -a logs/stdout
     if [[ "$file" == *.html ]]; then
             echo "File extension is correct" | tee -a logs/stdout
