@@ -90,6 +90,7 @@ while read -r ACCESSION; do
   prefetch "$ACCESSION" #descarga .sra files
   fasterq-dump --split-files "$ACCESSION" #convierte .sra files en .fastq y los separa en dos archivos si se trata de lecturas pareadas
 done < "$file"
+rm -r *.sra #para borrar los sra files descargados con prefetch que no sirven para nada
 
 echo "Finished. FASTQ files downloaded in $(pwd)" | tee -a logs/stdout
 ls #para ver los archivos
