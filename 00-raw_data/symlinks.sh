@@ -89,6 +89,7 @@ for file in "$directory"/*; do
     #Crearemos un link simbólico para cada archivo que se guardará en este directorio
     echo "Creating symbolic link for $sample ..." | tee -a logs/stdout
     ln -s $directory/$sample $sample   #Coge de la ruta del directorio dado cada archivo que haya en él y lo guarda como un symlink en este directorio
+    mv $sample results/
     #Vamos a comprobar que haya ido bien la creación del link
     if [ $? != 0 ]; then
         echo "Something went wrong during symbolic links creation for file $sample" | tee -a logs/stderr
