@@ -3,7 +3,7 @@
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
 #Start date: 1st may 2025
-version=2.0.2
+version= Version 2.0.2
 
 #Usage example
 #00-data.sh -f SRR_Acc_List.txt
