@@ -1,9 +1,12 @@
 # !/bin/bash
 # Este script se encarga de indexar el genoma de referencia para los alineamientos.
-# La herramienta empleada es Hisat2 cuyo GitHub es el siguiente:
+# La herramienta empleada para el alineamiento es Hisat2 cuyo GitHub es el siguiente:
 # https://github.com/DaehwanKimLab/hisat2
+# También se empleó samtools para convertir de .sam a .bam:
+# https://www.htslib.org/
+
 #Author: Laura Barreales y Sara Lévano
-#Start date: 10st may 2025
+#Start date: 10th may 2025
 version="versión 1.0"
 
 # Usage example:
@@ -39,13 +42,16 @@ done
 if [[ ! -e "$GENOME" ]] || [[ ! -r "$GENOME" ]];then
 	echo "Error: $GENOME does not exist or does not have read permissions" | tee -a logs/stderr
 	exit 1
-elif [[ ! -e "$GTF" ]] || [[ ! -r "$GTF" ]]; then
+fi
+if [[ ! -e "$GTF" ]] || [[ ! -r "$GTF" ]]; then
 	echo "Error: $GTF does not exist or does not have read permissions" | tee -a logs/stderr
 	exit 1
-elif [[ ! -e "$sample_list" ]] || [[ ! -r "$sample_list" ]]; then
+fi
+if [[ ! -e "$sample_list" ]] || [[ ! -r "$sample_list" ]]; then
 	echo "Error: $sample_list does not exist or does not have read permissions" | tee -a logs/stderr
 	exit 1
-elif [[ ! -e "$INPUT_DIR" ]] || [[ ! -r "$INPUT_DIR" ]]; then
+fi
+if [[ ! -e "$INPUT_DIR" ]] || [[ ! -r "$INPUT_DIR" ]]; then
 	echo "Error: $INPUT_DIR does not exist or does not have read permissions" | tee -a logs/stderr
 	exit 1
 fi
@@ -69,6 +75,8 @@ while IFS= read -r sample; do
     -1 $INPUT_DIR/$FW \
     -2 $INPUT_DIR/$RV \
     -S $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
-    -p/--threads 3
+    samtools view -bS $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam > $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam 
+    # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
+    # -p/--threads 3 # En caso de querer especificar los hilos
     } >> logs/stdout 2>> logs/stderr
 done < sample_list
