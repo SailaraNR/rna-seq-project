@@ -81,10 +81,11 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
     #Necesitamos saber como se llaman los archivos fastq y cómo se diferencian entre pares de secuencias
     #Va a sacar 4 archivos, dos de ellos pasarán la selección tras el trimado (paired) y otros dos no (unpaired). Esto ocurre porque son secuencias pareadas
     echo "Processing "$sample"..."
+    name=${sample%.*} #Para quitar la extensión y poder poner el nombre de la muestra en los archivos input y putput
     trimmomatic PE \
-      ${sample}_R1.fastq ${sample}_R2.fastq \
-      ${sample}_R1_paired.fastq ${sample}_R1_unpaired.fastq \
-      ${sample}_R2_paired.fastq ${sample}_R2_unpaired.fastq \
+      ${name}_R1.fastq ${name}_R2.fastq \
+      ${name}_R1_paired.fastq ${name}_R1_unpaired.fastq \
+      ${name}_R2_paired.fastq ${name}_R2_unpaired.fastq \
       ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
       SLIDINGWINDOW:$SLIDINGWINDOW \
       LEADING:3 TRAILING:3 \
@@ -100,7 +101,7 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
       
       #Hacaer Fastqc para cada muestra
       echo "Executing FastQC for paired files of $sample" | tee -a logs/stdout
-      fastqc "$output_dir/${sample}_R1_paired.fastq" "$output/${sample}_R2_paired.fastq" -o "$fastqc_dir" \
+      fastqc "$output_dir/${name}_R1_paired.fastq" "$output/${name}_R2_paired.fastq" -o "$fastqc_dir" \
         1>> logs/stdout 2>> logs/stderr 
 done
 
