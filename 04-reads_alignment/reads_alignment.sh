@@ -1,6 +1,6 @@
 # !/bin/bash
 # Este script se encarga de indexar el genoma de referencia para los alineamientos.
-# La herramienta empleada para el alineamiento es Hisat2 cuyo GitHub es el siguiente:
+# La herramienta empleada para el alineamiento es Hisat2:
 # https://github.com/DaehwanKimLab/hisat2
 # También se empleó samtools para convertir de .sam a .bam:
 # https://www.htslib.org/
@@ -15,7 +15,7 @@ version="versión 1.0"
 
 #######################################################################
 
-while getops "hv:d:F:R:G:A:t:o:l"; do
+while getops "hvd:F:R:G:A:t:o:l:"; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
            "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf -t STAR out_dir -l sample_list.txt" | tee -a logs/stderr
@@ -76,6 +76,7 @@ while IFS= read -r sample; do
     -2 $INPUT_DIR/$RV \
     -S $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
     samtools view -bS $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam > $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam 
+    samtools sort $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam -o $OUTPUT_DIR/$sample/results/HISAT2/sorted_HISAT2.bam
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
     # -p/--threads 3 # En caso de querer especificar los hilos
     } >> logs/stdout 2>> logs/stderr
