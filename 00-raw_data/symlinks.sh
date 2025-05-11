@@ -59,7 +59,7 @@ for file in "$directory"/*; do
 
     #Vamos a comprobar que el arhivo es .fastq
     echo "Checking whether file extension is .fastq" | tee -a logs/stdout
-    if [[ "$file" == *.fastq ]]; then
+    if [[ "$file" == *.fastq.gz ]]; then
             echo "File extension is correct" | tee -a logs/stdout
     else
             echo "File extension not correct. Must be .fastq file" | tee -a logs/stderr
