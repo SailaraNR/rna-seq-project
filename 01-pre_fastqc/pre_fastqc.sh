@@ -3,7 +3,7 @@
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
 #Start date: 4th May 2025
-version= Version 1.6
+version=Version 1.6
 
 #Usage example: pre-fastqc.sh
 #No arguments expected, but -v and -h are available
