@@ -3,7 +3,7 @@
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
 #Start date: 4th May 2025
-version=Version 1.6
+version="Version 1.7"
 
 #Usage example: pre-fastqc.sh
 #No arguments expected, but -v and -h are available
@@ -31,7 +31,7 @@ while getopts "hv" opt; do
     case $opt in
         h) echo -e "You asked for usage help\n"\
             "This script checks the quality of the previously downloaded raw sequences" | tee -a logs/stdout
-            echo -e "Usage example:\n\t sh $0 -h: Provides help \n\t sh $0 -v: Tells script's version\n\tsh $0: checks quality score of raw sequences" | tee -a logs/stdout
+            echo -e "Usage example:\n\tsh $0 -h: Provides help \n\tsh $0 -v: Tells script's version\n\tsh $0: checks quality score of raw sequences" | tee -a logs/stdout
             exit 0;;
         v) echo "$version" | tee -a logs/stdout
             exit 0;;
@@ -50,7 +50,7 @@ if [ ! -d "$input_path" ]; then
         exit 1
 fi
 
-{for file in "$input_path"/*; do
+{ for file in "$input_path"/*; do
         #Vamos a comprobar que el archivo no está vacío
         sample=$(basename "$file") #Nos quedamos con el nombre de la muestra
         echo "Checking if $sample exists and it's not empty" | tee -a logs/stdout
@@ -94,12 +94,12 @@ fi
         else
             echo "this is not .fastq, moving to the next..." #Si funciona lo de guardar los symlinks en 00/results no hace falta esto, pero se podría dejar como cortafuegos
         fi; 2>> logs/stderr
-done} 2>> logs/stderr
+done } 2>> logs/stderr
 
 echo "Now Multiqc will run in order to make a summary of the analysis"
 echo "But first it will check if files' extensions are .html after fastqc analysis"
 #Vamos a comprobar que el arhivo es .html
-for $file in "$output_path"/*; do
+for file in "$output_path"/*; do
     echo "Checking whether file extension is .html" | tee -a logs/stdout
     if [[ "$file" == *.html ]]; then
             echo "File extension is correct" | tee -a logs/stdout
