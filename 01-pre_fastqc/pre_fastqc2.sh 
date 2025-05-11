@@ -80,7 +80,7 @@ fi
             #Ahora vamos a comprobar que la calidad de la secuencia con fastqc
             echo "Checking quality score in $sample" | tee -a logs/${sample}.out
             #creo que podría ponerse así 
-            fastqc $file -o $output_path > >(tee -a ${sample}.out) 2> >(tee -a ${sample}.err >&2) #porque $file debería ser la ruta absoluta del archivo (al menos así era en el archivo symlinks)
+            fastqc $file -o $output_path > >(tee -a logs/${sample}.out) 2> >(tee -a logs/${sample}.err >&2) #porque $file debería ser la ruta absoluta del archivo (al menos así era en el archivo symlinks)
            
             #quitaría la linea de abajo, está mal para este bucle concreto
             #fastqc $input_path/*.fastq -o $output_path | tee -a logs/${sample}.out #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
@@ -111,10 +111,10 @@ echo "But first it will check if files' extensions are .html after fastqc analys
 #multiqc ./results -n multiqc_analysis.html > >(tee -a ${sample}.out) 2> >(tee -a ${sample}.err >&2) #multiqc se va a ejecutar en el 01/results que es donde se han guardado las secuencias fastqc
 
 #A lo mejor así queda más elegante
-multiqc $output_path -n multiqc_analysis.html > >(tee -a ${sample}.out) 2> >(tee -a ${sample}.err >&2) #multiqc se va a ejecutar en el 01/results que es donde se han guardado las secuencias fastqc
+multiqc $output_path -n multiqc_analysis.html > >(tee -a logs/${sample}.out) 2> >(tee -a logs/${sample}.err >&2) #multiqc se va a ejecutar en el 01/results que es donde se han guardado las secuencias fastqc
 # se habrá creado un archivo html con un resumen de el análisis de fastqc
 # -n es para ponerle nombre al archivo
-echo -e "Multiqc has finished its job. \nYou can now check for an .html file in $(pwd) \nto find the analysis" | tee -a logs/stdout
+echo -e "Multiqc has finished its job. \nYou can now check for an .html file in $(pwd) \nto find the analysis" | tee -a logs/multiqc.out
 
 ######################################################
 #Voy a dejar este enlace aquí, ya lo quitaremos.
