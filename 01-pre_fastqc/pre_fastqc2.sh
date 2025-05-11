@@ -45,7 +45,7 @@ while getopts "hv" opt; do
 done
 
 input_path="../00-raw_data/results"
-output_path="/results/"
+output_path="./results"
 
 # Check if the target is not a directory
 echo -e "\nChecking if input directory exists" | tee -a logs/help.out
