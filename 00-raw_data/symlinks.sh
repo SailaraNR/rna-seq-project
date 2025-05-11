@@ -50,7 +50,7 @@ for file in "$directory"/*; do
     echo "This is $sample" 
     #Vamos a comprobar que el archivo no está vacío
     echo "Checking if the file exists and it's not empty" | tee -a logs/stdout
-    if [ -s $file ]; then
+    if [ -s "$file" ]; then
             echo "File exist and is not empty"  | tee -a logs/stdout
     else
             echo "file is empty"  | tee -a logs/stderr
@@ -62,8 +62,8 @@ for file in "$directory"/*; do
     if [[ "$file" == *.fastq.gz ]]; then
             echo "File extension is correct" | tee -a logs/stdout
     else
-            echo "File extension not correct. Must be .fastq file" | tee -a logs/stderr
-            exit 1
+            echo "File extension not correct. Must be .fastq file. Skipping $sample " | tee -a logs/stderr
+            continue #Para que salte al siguiente archivo si no es un .fastq.gz
     fi 
 
     #Vamos a comprobar que el archivo es legible y ejecutable
