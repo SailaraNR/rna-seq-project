@@ -39,22 +39,27 @@ while getops "hvd:F:R:G:A:t:o:l:"; do
 done
 
 # File validation: Check if the variables exist
-if [[ ! -e "$GENOME" ]] || [[ ! -r "$GENOME" ]];then
-	echo "Error: $GENOME does not exist or does not have read permissions" | tee -a logs/stderr
-	exit 1
-fi
-if [[ ! -e "$GTF" ]] || [[ ! -r "$GTF" ]]; then
-	echo "Error: $GTF does not exist or does not have read permissions" | tee -a logs/stderr
-	exit 1
-fi
-if [[ ! -e "$sample_list" ]] || [[ ! -r "$sample_list" ]]; then
-	echo "Error: $sample_list does not exist or does not have read permissions" | tee -a logs/stderr
-	exit 1
-fi
-if [[ ! -e "$INPUT_DIR" ]] || [[ ! -r "$INPUT_DIR" ]]; then
-	echo "Error: $INPUT_DIR does not exist or does not have read permissions" | tee -a logs/stderr
-	exit 1
-fi
+# Convertir en bucle para dar permisos
+for file in "$GENOME" "$GTF" "$sample_list" "$INPUT_DIR"; do
+    if [[ ! -e "$file" ]];then
+        echo "Error: $file does not exist" | tee -a logs/stderr >&2
+        exit 1
+    elif [[ -r "$file" && -x "$file" ]]; then
+        echo "File is readable and executable" | tee -a logs/stdout
+    elif [ -r "$file" ]; then
+        echo "File is readable but not executable. Fixing." | tee -a logs/stdout
+        chmod +x "$file"
+        echo "fixed" | tee -a logs/stdout
+    elif [ -x "$file" ]; then
+        echo "File is executable but not readable" | tee -a logs/stdout
+        chmod +r "$file"
+        echo "Fieexd" | tee -a logs/stdout
+    else
+        echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
+        chmod +rx "$file"
+        echo "Fixed" | tee -a logs/stdout
+    fi
+done >> logs/stdout 2>> logs/stderr
 
 #Create output directory and subdirectories:
 echo "Creating output directory..."
@@ -68,8 +73,8 @@ hisat2-build $genome_fasta $OUTPUT_DIR/HISAT2_genome_indices/genome_index
 
 # Aligment
 while IFS= read -r sample; do
+    echo "Aligning $sample ..." | tee -a logs/stout
     {
-    # Vale, aquí tengo dudas porque se puede usar también con --sra-acc <SRA accession number>, -q para .fasta, etc. y no sé qué es más práctico
     # -x <genoma_ref> -1 <FW> -2 <RV> -S <output_sam_files>
     hisat2 -x $OUTPUT_DIR/HISAT2_genome_indices/genome_index \
     -1 $INPUT_DIR/$FW \
@@ -80,4 +85,8 @@ while IFS= read -r sample; do
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
     # -p/--threads 3 # En caso de querer especificar los hilos
     } >> logs/stdout 2>> logs/stderr
+    echo "Finished $sample" | tee -a logs/stout
 done < sample_list
+
+# añadir un MultiQC en una carpeta llamada /results/MultiQC
+# command 2>&1 >file (mirar esta wea de las redirecciones)

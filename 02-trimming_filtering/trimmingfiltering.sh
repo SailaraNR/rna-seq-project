@@ -1,3 +1,4 @@
+# !/bin/bash
 #Este script coge los archivos con las raw data, las analiza, trima y elimina secuencias
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
@@ -28,8 +29,8 @@ while getopts "hvm:w:" opt; do
             exit 0;;
         w) SLIDINGWINDOW="$OPTARG" ;;
         m) MINLEN="$OPTARG" ;;
-        \?) echo -e "Invalid option\n\ 
-            Usage example: $0 " | tee -a logs/stdout
+        \?) echo -e "Invalid option\n"\ 
+            "Usage example: $0 " | tee -a logs/stdout
             exit 1;; #si pone simbolos raros no sirve
     esac
 done
@@ -82,6 +83,7 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
     #Va a sacar 4 archivos, dos de ellos pasarán la selección tras el trimado (paired) y otros dos no (unpaired). Esto ocurre porque son secuencias pareadas
     echo "Processing "$sample"..."
     name=${sample%.*} #Para quitar la extensión y poder poner el nombre de la muestra en los archivos input y putput
+    {
     trimmomatic PE \
       ${name}_R1.fastq ${name}_R2.fastq \
       ${name}_R1_paired.fastq ${name}_R1_unpaired.fastq \
@@ -89,8 +91,8 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
       ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
       SLIDINGWINDOW:$SLIDINGWINDOW \
       LEADING:3 TRAILING:3 \
-      MINLEN:$MINLEN \
-      1>> logs/stdout 2>> logs/stderr 
+      MINLEN:$MINLEN
+     } >> logs/stdout 2>> logs/stderr 
       #MINLEN: Es la cantidad mínima de bases que pedimos tras el trimado, yo pondría más
       #LEADING: Es la calidad mínima que debe tener la secuenciación de cada base del principio, si no llega se corta
       #TRAILING: Es la calidad mínima que debe tener la secuenciación de cada base del final, si no llega se corta
@@ -100,9 +102,10 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
       #NO utilizaría MAXINFO 
       
       #Hacaer Fastqc para cada muestra
+      {
       echo "Executing FastQC for paired files of $sample" | tee -a logs/stdout
-      fastqc "$output_dir/${name}_R1_paired.fastq" "$output/${name}_R2_paired.fastq" -o "$fastqc_dir" \
-        1>> logs/stdout 2>> logs/stderr 
+      fastqc "$output_dir/${name}_R1_paired.fastq" "$output/${name}_R2_paired.fastq" -o "$fastqc_dir"
+      } | tee -a logs/stdout 2>> logs/stderr
 done
 
 multiqc_dir="./results/multiqc"
