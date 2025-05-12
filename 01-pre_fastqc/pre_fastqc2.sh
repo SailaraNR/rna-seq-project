@@ -19,16 +19,16 @@ output_path="./results"
 #######################################################################
 
 # inicialización de logs vacíos
-cat /dev/null > logs2/*.out
-cat /dev/null > logs2/*.err
+cat /dev/null > logs/*
+
 
 #explain the code
-echo -e "Use -h for help or -v for the version. \nUse -i to introduce input directory and -o to introduce output directory for fastqc outputfiles" | tee -a logs/help.out
+{ echo -e "Use -h for help or -v for the version. \nUse -i to introduce input directory and -o to introduce output directory for fastqc outputfiles" 
 # getops y while para la ayuda, la versión y el ejemplo de uso
 
-#Vamos a ver si se han proporcionado el número de argumentos correctos (0 o 1)
-if [ $# -gt 1 ]; then
-        echo -e "More than 1 option provided. \nRun $0 -h for usage help"| tee -a logs/help.err
+#Vamos a ver si se han proporcionado el número de argumentos correctos 
+if [ $# -eq 0 ]; then
+        echo -e "Need at least one argument. \nRun $0 -h for usage help" >&2
         exit 1
 fi
 
@@ -36,11 +36,11 @@ fi
 while getopts ":hvo:i:" opt; do
     case $opt in
         h) echo -e "You asked for usage help\n"\
-            "This script checks the quality of the previously downloaded raw sequences" | tee -a logs/help.out
+            "This script checks the quality of the previously downloaded raw sequences" 
             echo -e "Usage example:\n\t./$0 -h: Provides help \n\t./$0 -v: Tells script's version\n\t./$0: checks quality score of raw sequences" \
-            "\n\t./$0 -i /path/to/input/direcyoty \n\t./$0 -o /path/to/output/direcyoty" | tee -a logs/help.out
+            "\n\t./$0 -i /path/to/input/direcyoty \n\t./$0 -o /path/to/output/direcyoty" 
             exit 0;;
-        v) echo "$version" | tee -a logs/help.out
+        v) echo "$version" 
             exit 0;;
         i) input_path="$OPTARG"
             echo "Procesando el directorio: $input_path ..." ;;
@@ -49,15 +49,15 @@ while getopts ":hvo:i:" opt; do
         :) echo "Option -$OPTARG requieres an argument" >&2 #si pone solo -d no sirve
             exit 1 ;;    
         \?) echo -e "Invalid option\n\ 
-            Usage example: $0 " | tee -a logs/help.err
+            Usage example: $0 " >&2
             exit 1;; #si pone simbolos raros no sirve
     esac
 done
 
 
 # Comprobar que los directorios existan
-echo -e "\nChecking if output directory exists" | tee -a logs/help.out
-if [ ! -d $input_path ]
+echo -e "\nChecking if output directory exists" 
+if [ ! -d "$input_path" ]
 then 
      echo "Input path exists"
 else 
@@ -65,12 +65,13 @@ else
      then  
          echo "Directory is not empty"
      else 
-         echo "Directory is empty"
+         echo "Directory is empty" >&2
+         exit 1 
      fi
 fi
 
-echo -e "\nChecking if output directory exists" | tee -a logs/help.out
-if [ ! -d $output_path ]
+echo -e "\nChecking if output directory exists" 
+if [ ! -d "$output_path" ]
 then 
      echo "Input path exists"
 else 
@@ -78,17 +79,17 @@ else
      then  
          echo "Directory is not empty"
      else 
-         echo "Directory is empty"
+         echo "Directory is empty" >&2
      fi
 fi
+} >> >(tee -a logs/all_files.out) 2>> >(tee -a logs/all_files.err)
 
 
-
-{ for file in "$input_path"/*; do
+for file in "$input_path"/*; do
         #Vamos a comprobar que el archivo no está vacío
         sample=$(basename "$file") #Nos quedamos con el nombre de la muestra para los echo
         name=${sample%.*} #quita la extensión del archivo, se usará para dar nombre a los files de salida
-        echo -e "\nChecking if $sample exists and it's not empty" 
+        { echo -e "\nChecking if $sample exists and it's not empty" 
         if [[ -f "$file" && -s "$file" ]]; then
             echo "$sample exist and is not empty"  
          else
@@ -125,7 +126,8 @@ fi
             continue
             #Si funciona lo de guardar los symlinks en 00/results no hace falta esto, pero se podría dejar como cortafuegos
         fi;
-done } >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
+        } >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
+done 
 
 { echo -e "\nNow Multiqc will run in order to make a summary of the analysis" 
 echo "But first it will check if files' extensions are .html after fastqc analysis" 
