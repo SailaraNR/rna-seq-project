@@ -11,15 +11,15 @@ version="version 2.0"
 ############################################################################################
 
 # inicialización de logs vacíos
-cat /dev/null > logs/stdout
-cat /dev/null > logs/stderr
+cat /dev/null > logs/*
+
 
 # explain the code
-{echo -e "Use: \n\t-h for help\n\t-v for the version of the script \n\t-d ruta/absoluta/del/directorio to create de symbolic links" | tee -a logs/stdout
+{ echo -e "Use: \n\t-h for help\n\t-v for the version of the script \n\t-d ruta/absoluta/del/directorio to create de symbolic links" 
 
 #Vamos a ver si se han proporcionado argumentos
 if [ $# -eq 0 ]; then
-        echo -e "No options provided. \nUse $0 -h for help"
+        echo -e "No options provided. \nUse $0 -h for help" >&2
         exit 1
 fi
 
@@ -33,7 +33,7 @@ while getopts ":d:hv" opt; do
                 v) echo $version 
                    exit 0;;
                 d) directory="$OPTARG"
-                   echo "Procesando el directorio: $directory ..." 
+                   echo "Proccessing directory: $directory ..." 
                     ;;
                 :) echo "Option -$OPTARG requieres an argument" >&2 #si pone solo -d no sirve
                    exit 1 ;;
@@ -45,11 +45,11 @@ while getopts ":d:hv" opt; do
 done
 } >> >(tee -a logs/all_samples.out) 2>> >(tee -a logs/all_samples.err)
 
-{for file in "$directory"/*; do
-    echo -e "\n"
+for file in "$directory"/*; do
+    echo -e "\n" } >> >(tee -a logs/${name}.out) 
     sample=$(basename "$file") #Nos quedamos con el nombre de la muestra
     name=${sample%.*} #quita la extensión del archivo, se usará para dar nombre a los logs de salida
-    echo "This is $sample" 
+    { echo "This is $sample" 
     #Vamos a comprobar que el archivo no está vacío
     echo "Checking if the file exists and it's not empty" 
     if [ -s "$file" ]; then
@@ -64,25 +64,17 @@ done
     if [[ "$file" == *.fastq.gz ]]; then
             echo "File extension is correct" 
     else
-            echo "File extension not correct. Must be .fastq file. Skipping $sample " >&2
+            echo "File extension not correct. Must be .fastq.gz file. Skipping $sample " >&2
             continue #Para que salte al siguiente archivo si no es un .fastq.gz
     fi 
 
     #Vamos a comprobar que el archivo es legible y ejecutable
     echo "Checking $sample permissions" 
 
-    if [[ -r "$file" && -x "$file" ]]; then
-            echo "File is readable and executable" 
-    elif [ -r "$file" ]; then
-            echo "File is readable but not executable. Fixing." >&2
-            chmod +x "$file"
-            echo "fixed" >&2
-    elif [ -x "$file" ]; then
-            echo "File is executable but not readable" >&2
-            chmod +r "$file"
-            echo "Fieexd" >&2
+    if [[ -r "$file" ]]; then
+            echo "File is readable. We can continue" 
     else
-            echo "File is neither readable nor executable. Fixing" >&2
+            echo "File is not readable . Fixing" >&2
             chmod +rx "$file"
             echo "Fixed" >&2
     fi
@@ -98,9 +90,10 @@ done
         exit 1  
     fi
     echo "Symbolic link created for $file and named $sample" 
+    } >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
 done
-} >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
+
 
 echo -e "\n" >> >(tee -a logs/all_files.out)
-echo "Symbolic links successfully created in $(pwd)" >> >(tee -a logs/all_files.out)
+echo "Symbolic links successfully created in $(pwd)" >> >(tee -a logs/all_samples.out)
 
