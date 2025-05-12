@@ -3,7 +3,7 @@
 #Se puede obetener este archivo desde la web de SRA correspondiente al experimento
 #Author: Laura Barreales y Sara Lévano
 #Start date: 1st may 2025
-version= Version 2.0.2
+version= Version 2.3
 
 #Usage example
 #00-data.sh -f SRR_Acc_List.txt
@@ -13,15 +13,15 @@ version= Version 2.0.2
 ############################################################################################
 
 # inicialización de logs vacíos
-cat /dev/null > logs/stdout
-cat /dev/null > logs/stderr
+cat /dev/null > logs/*.out
+cat /dev/null > logs/*.err
 
 # explain the code
-echo "Use -f for the file, -h for help and -v for the version" | tee -a logs/stdout
+{ echo "Use -f for the file, -h for help and -v for the version" 
 
 #Vamos a ver si se han proporcionado argumetnos
 if [ $# -eq 0 ]; then
-        echo -e "No options provided. \nUse $0 -h for help"| tee -a logs/stdout
+        echo -e "No options provided. \nUse $0 -h for help" >&2
         exit 1
 fi
 
@@ -29,68 +29,71 @@ fi
 while getopts ":f:hv" opt; do
         case $opt in
                 h) echo -e "You asked for usage help\n"\
-                   "This script downloads rawdata if a file.txt with SRR accessions is given" | tee -a logs/stdout
-                   echo -e "Usage example:\n\t sh $0 -h: Provides help \n\t sh $0 -v: Tells script's version\n\t sh $0 -f file.txt: Downloads rawdata from de accessions in file.txt" | tee -a logs/stdout
+                   "This script downloads rawdata if a file.txt with SRR accessions is given" 
+                   echo -e "Usage example:\n\t ./$0 -h: Provides help \n\t ./$0 -v: Tells script's version\n\t ./$0 -f file.txt: Downloads rawdata from de accessions in file.txt" 
                    exit 0;;
-                v) echo $version | tee -a logs/stdout
+                v) echo $version 
                    exit 0;;
-                f) echo "Abriendo el archivo -f $file ..." | tee -a logs/stdout 
+                f) echo "Abriendo el archivo -f $file ..."  
                    file="$OPTARG" ;;
-                :) echo "Option -$OPTARG requieres an argument" | tee -a logs/stdout #si pone solo -f no sirve
+                :) echo "Option -$OPTARG requieres an argument" >&2 #si pone solo -f no sirve
                    exit 1 ;;
                 \?) echo -e "Invalid option or missing argument\n"\
-                   "Usage example: $0 SRR_Acc_List.txt" | tee -a logs/stdout
+                   "Usage example: $0 SRR_Acc_List.txt" >&2
                    exit 1 ;;
 
         esac
 done
+} >> >(tee -a logs/all_samples.out) 2>> >(tee -a logs/all_samples.err)
 
 #Vamos a comprobar que el archivo no está vacío
-echo "Checking if the file exists and it's not empty" | tee -a logs/stdout
+{ echo "Checking if the file exists and it's not empty" 
 if [ -s $file ]; then
-        echo "File exist and is not empty"  | tee -a logs/stdout
+        echo "File exist and is not empty"  
 else
-        echo "file is empty"  | tee -a logs/stderr
+        echo "file is empty"  >&2
         exit 1
 fi 
 
 #Vamos a comprobar que el arhivo es .txt
-echo "Checking whether file extension is .txt" | tee -a logs/stdout
+echo "Checking whether file extension is .txt" 
 if [ "$file" == *.txt ]; then
-        echo "File extension is correct" | tee -a logs/stdout
+        echo "File extension is correct" 
 else
-        echo "File extension not correct. Must be .txt file" | tee -a logs/stderr
+        echo "File extension not correct. Must be .txt file" >&2
         exit 1
 fi 
 
 #Vamos a comprobar que el archivo es legible y ejecutable
-echo "Checking $file permissions" | tee -a logs/stdout
+echo "Checking $file permissions" 
 
 if [[ -r "$file" && -x "$file" ]]; then
-        echo "File is readable and executable" | tee -a logs/stdout
+        echo "File is readable and executable" 
 elif [ -r "$file" ]; then
-        echo "File is readable but not executable. Fixing." | tee -a logs/stdout
+        echo "File is readable but not executable. Fixing." >&2
         chmod +x "$file"
-        echo "fixed" | tee -a logs/stdout
+        echo "fixed" >&2
 elif [ -x "$file" ]; then
-        echo "File is executable but not readable" | tee -a logs/stdout
+        echo "File is executable but not readable" >&2
         chmod +r "$file"
-        echo "Fieexd" | tee -a logs/stdout
+        echo "Fieexd" >&2
 else
-        echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
+        echo "File is neither readable nor executable. Fixing" >&2
         chmod +rx "$file"
-        echo "Fixed" | tee -a logs/stdout
-fi
+        echo "Fixed" >&2
+fi 
+} >> >(tee -a logs/all_samples.out) 2>> >(tee -a logs/all_samples.err)
 
 #Se leerán las accesion del archivo una a una y se descargaran las raw data correspondientes
-echo "Processing accesions from $file..." | tee -a logs/stdout
+{ echo "Processing accesions from $file..." 
 while read -r ACCESSION; do
+  name=$(sample%.*)
   [[ -z "$ACCESSION" ]] && continue # comprueba que la linea que lee está o no vacía
-  echo "Downloading $ACCESSION" | tee -a logs/stdout
+  echo "Downloading $ACCESSION" 
   prefetch "$ACCESSION" #descarga .sra files
   fasterq-dump --split-files "$ACCESSION" #convierte .sra files en .fastq y los separa en dos archivos si se trata de lecturas pareadas
 done < "$file"
 rm -r *.sra #para borrar los sra files descargados con prefetch que no sirven para nada
 
-echo "Finished. FASTQ files downloaded in $(pwd)" | tee -a logs/stdout
-ls #para ver los archivos
+echo "Finished. FASTQ files downloaded in $(pwd)" 
+} >> >(tee -a logs/all_${name}.out) 2>> >(tee -a logs/all_${name}.err)
