@@ -44,7 +44,7 @@ while getopts ":f:hv" opt; do
 
         esac
 done
-} >> >(tee -a logs/all_samples.out) 2>> >(tee -a logs/all_samples.err)
+} 2>> >(tee -a logs/all_samples.err) >> >(tee -a logs/all_samples.out)
 
 #Vamos a comprobar que el archivo no está vacío
 { echo "Checking if the file exists and it's not empty" 
@@ -82,7 +82,7 @@ else
         chmod +rx "$file"
         echo "Fixed" >&2
 fi 
-} >> >(tee -a logs/all_samples.out) 2>> >(tee -a logs/all_samples.err)
+} 2>> >(tee -a logs/all_samples.err) >> >(tee -a logs/all_samples.out)
 
 #Se leerán las accesion del archivo una a una y se descargaran las raw data correspondientes
 { echo "Processing accesions from $file..." 
@@ -96,4 +96,4 @@ done < "$file"
 rm -r *.sra #para borrar los sra files descargados con prefetch que no sirven para nada
 
 echo "Finished. FASTQ files downloaded in $(pwd)" 
-} >> >(tee -a logs/all_${name}.out) 2>> >(tee -a logs/all_${name}.err)
+} 2>> >(tee -a logs/all_${name}.err) >> >(tee -a logs/all_${name}.out)
