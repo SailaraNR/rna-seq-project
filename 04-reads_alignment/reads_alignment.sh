@@ -42,29 +42,29 @@ done
 # Convertir en bucle para dar permisos
 for file in "$GENOME" "$GTF" "$sample_list" "$INPUT_DIR"; do
     if [[ ! -e "$file" ]];then
-        echo "Error: $file does not exist" | tee -a logs/stderr >&2
+        echo "Error: $file does not exist" | tee -a logs/${file}.err
         exit 1
     elif [[ -r "$file" && -x "$file" ]]; then
-        echo "File is readable and executable" | tee -a logs/stdout
+        echo "File is readable and executable" | tee -a logs/${file}.out
     elif [ -r "$file" ]; then
-        echo "File is readable but not executable. Fixing." | tee -a logs/stdout
+        echo "File is readable but not executable. Fixing." | tee -a logs/${file}.out
         chmod +x "$file"
-        echo "fixed" | tee -a logs/stdout
+        echo "fixed" | tee -a logs/${file}.out
     elif [ -x "$file" ]; then
-        echo "File is executable but not readable" | tee -a logs/stdout
+        echo "File is executable but not readable" | tee -a logs/${file}.out
         chmod +r "$file"
-        echo "Fieexd" | tee -a logs/stdout
+        echo "Fieexd" | tee -a logs/${file}.out
     else
-        echo "File is neither readable nor executable. Fixing" | tee -a logs/stdout
+        echo "File is neither readable nor executable. Fixing" | tee -a logs/${file}.out
         chmod +rx "$file"
-        echo "Fixed" | tee -a logs/stdout
+        echo "Fixed" | tee -a logs/${file}.out
     fi
-done >> logs/stdout 2>> logs/stderr
+done 2> >(tee logs/files.err) > >(tee logs/files.out)
 
 #Create output directory and subdirectories:
 echo "Creating output directory..."
 if ! [[ -e $OUTPUT_DIR ]]; then
-	echo "Output directory does not exists, creating..." | tee -a logs/stout
+	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
 	mkdir $OUTPUT_DIR
 fi
 
@@ -73,7 +73,7 @@ hisat2-build $genome_fasta $OUTPUT_DIR/HISAT2_genome_indices/genome_index
 
 # Aligment
 while IFS= read -r sample; do
-    echo "Aligning $sample ..." | tee -a logs/stout
+    echo "Aligning $sample ..." | tee -a logs/${sample}.out
     {
     # -x <genoma_ref> -1 <FW> -2 <RV> -S <output_sam_files>
     hisat2 -x $OUTPUT_DIR/HISAT2_genome_indices/genome_index \
@@ -84,8 +84,8 @@ while IFS= read -r sample; do
     samtools sort $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam -o $OUTPUT_DIR/$sample/results/HISAT2/sorted_HISAT2.bam
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
     # -p/--threads 3 # En caso de querer especificar los hilos
-    } >> logs/stdout 2>> logs/stderr
-    echo "Finished $sample" | tee -a logs/stout
+    } 2> >(tee logs/${sample}.err) > >(tee logs/${sample}.out)
+    echo "Finished $sample" | tee -a logs/${sample}.out
 done < sample_list
 
 # añadir un MultiQC en una carpeta llamada /results/MultiQC
