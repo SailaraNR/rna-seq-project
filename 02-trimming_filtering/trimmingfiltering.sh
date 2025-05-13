@@ -52,7 +52,7 @@ while getopts "hvm:w:l:t:i:o:f:c:" opt; do
     esac
 done
 echo "Usando SLIDINGWINDOW=$SLIDINGWINDOW y MINLEN=$MINLEN" 
-} >> >(tee -a logs/all_files.out) 2>> >(tee -a logs/all_files.err)
+} 2>> >(tee -a logs/all_files.err) >> >(tee -a logs/all_files.out) 
 
 for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encuentran en esa carpeta. $file debería ser una ruta ansoluta al file
     sample=$(basename "$file") #Nos quedamos con el nombre de la muestra. Falta quitarle el .fastq, ya veremos como hacerlo en clase
@@ -93,7 +93,7 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
             chmod +rx "$file"
             echo "Fixed" >&2
     fi
-    } >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
+    } 2>> >(tee -a logs/${name}.err)  >> >(tee -a logs/${name}.out) 
     #Ahora vamos a trimar. 
     #Necesitamos saber como se llaman los archivos fastq y cómo se diferencian entre pares de secuencias
     #Va a sacar 4 archivos, dos de ellos pasarán la selección tras el trimado (paired) y otros dos no (unpaired). Esto ocurre porque son secuencias pareadas
@@ -108,7 +108,7 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
       SLIDINGWINDOW:$SLIDINGWINDOW \
       LEADING:$LEADING TRAILING:$TRAILING \
       MINLEN:$MINLEN
-     } >> >(tee -a logs/${name}_TRIM.out) 2>> >(tee -a logs/${name}_TRIM.err) 
+     } 2>> >(tee -a logs/${name}_TRIM.err) >> >(tee -a logs/${name}_TRIM.out) 
       #MINLEN: Es la cantidad mínima de bases que pedimos tras el trimado, yo pondría más
       #LEADING: Es la calidad mínima que debe tener la secuenciación de cada base del principio, si no llega se corta
       #TRAILING: Es la calidad mínima que debe tener la secuenciación de cada base del final, si no llega se corta
@@ -121,13 +121,13 @@ for file in "$input_dir"/*; do #Los archivos fastq para trimar y filtrar se encu
       {
       echo "Executing FastQC for paired files of $sample" | tee -a logs/stdout
       fastqc "$output_dir/${name}_R1_paired.fastq" "$output/${name}_R2_paired.fastq" -o "$fastqc_dir"
-      } >> >(tee -a logs/fastqc/${name}_fastqc.out) 2>> >(tee -a logs/fastqc/${name}_fastqc.err)
+      } 2>> >(tee -a logs/fastqc/${name}_fastqc.err)  >> >(tee -a logs/fastqc/${name}_fastqc.out)
 done
 
 
 # Hacer multiqc para integrar el análisis del fastqc
 { echo "Running MultiQC..." | tee -a logs/stdout
-multiqc "$multiqc_dir" -n "multiqc_trimmed_analysis.html" -o "$multiqc_dir" } >> >(tee -a logs/multiqc/multiqc.out) 2>> >(tee -a logs/multiqc/multiqc.err)
+multiqc "$multiqc_dir" -n "multiqc_trimmed_analysis.html" -o "$multiqc_dir" } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
    
 
 echo -e "Analysis completed." >> >(tee -a logs/all_files.out)
