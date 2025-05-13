@@ -83,6 +83,8 @@ else
      fi
 fi
 } >> >(tee -a logs/all_files.out) 2>> >(tee -a logs/all_files.err)
+#crea un fildescriptor nuevo para (tee -a etc)
+## >> es redirección pero >( ) es process substitution
 
 
 for file in "$input_path"/*; do
