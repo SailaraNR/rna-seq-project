@@ -82,7 +82,7 @@ else
          echo "Directory is empty" >&2
      fi
 fi
-} >> >(tee -a logs/all_files.out) 2>> >(tee -a logs/all_files.err)
+} 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
 #crea un fildescriptor nuevo para (tee -a etc)
 ## >> es redirección pero >( ) es process substitution
 
@@ -128,7 +128,7 @@ for file in "$input_path"/*; do
             continue
             #Si funciona lo de guardar los symlinks en 00/results no hace falta esto, pero se podría dejar como cortafuegos
         fi;
-        } >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
+        } 2>> >(tee -a logs/${name}.err) >> >(tee -a logs/${name}.out) 
 done 
 
 { echo -e "\nNow Multiqc will run in order to make a summary of the analysis" 
@@ -150,7 +150,7 @@ multiqc $output_path -n multiqc_analysis2.html #multiqc se va a ejecutar en el 0
 # se habrá creado un archivo html con un resumen de el análisis de fastqc
 # -n es para ponerle nombre al archivo
 echo -e "Multiqc has finished its job. \nYou can now check for an .html file in $(pwd) \nto find the analysis" 
-} >> >(tee -a logs/multiqc.out) 2>> >(tee -a logs/multiqc.err)
+} 2>> >(tee -a logs/multiqc.err)  >> >(tee -a logs/multiqc.out) 
 
 ######################################################
 #Voy a dejar este enlace aquí, ya lo quitaremos.
