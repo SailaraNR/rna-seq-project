@@ -43,7 +43,7 @@ while getopts ":d:hv" opt; do
 
         esac
 done
-} >> >(tee -a logs/all_samples.out) 2>> >(tee -a logs/all_samples.err)
+} 2>> >(tee -a logs/all_samples.err) >> >(tee -a logs/all_samples.out) 
 
 for file in "$directory"/*; do
     echo -e "\n" } >> >(tee -a logs/${name}.out) 
@@ -90,7 +90,7 @@ for file in "$directory"/*; do
         exit 1  
     fi
     echo "Symbolic link created for $file and named $sample" 
-    } >> >(tee -a logs/${name}.out) 2>> >(tee -a logs/${name}.err)
+    } 2>> >(tee -a logs/${name}.err) >> >(tee -a logs/${name}.out) 
 done
 
 
