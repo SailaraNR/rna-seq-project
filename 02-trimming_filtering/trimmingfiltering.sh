@@ -20,7 +20,7 @@ version="Version: 3.0"
 
 #######################################################################
 # inicialización de logs vacíos
-cat /dev/null > logs/*-v
+cat /dev/null > logs/*
 
 #explain the codec
 { echo -e "Use -h for help or -v for the version."
