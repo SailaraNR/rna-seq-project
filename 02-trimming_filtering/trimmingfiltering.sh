@@ -31,7 +31,7 @@ SLIDINGWINDOW="4:20"
 MINLEN="40" #ente 36-50 suele estar bien
 LEADING="3" #como elimina desde el principio donde la secuenciación tiene baja calidad, evita cortar demaisado
 TRAILING="20" #elimina desde atrás pb con phredscore menor a 20
-ILLUMINACLIP="/data/2025/grado_biotech/sara.levano/miniforge3/envs/RNAseq/share/trimmomatic-0.39-2/adapters/TruSeq2-PE.fa:2:30:10" #contiene el archivo de los adaptadores: el máximo de mismatch que se aceptan:palindromeClipthreshold:simpleCLipThreshold
+ILLUMINACLIP="/data/2025/grado_biotech/sara.levano/miniforge3/envs/RNAseq/share/trimmomatic-0.39-2/adapters/TruSeq3-PE-2.fa:2:30:10" #contiene el archivo de los adaptadores: el máximo de mismatch que se aceptan:palindromeClipthreshold:simpleCLipThreshold
 #En el ilumina clip, para los adapatadores he puesto la ruta completa, pero creo que deberia haber alguna otra forma de ponerlo
 
 #Manejar opciones y argumentos
