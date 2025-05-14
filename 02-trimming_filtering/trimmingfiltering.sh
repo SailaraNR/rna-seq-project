@@ -3,7 +3,7 @@
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
 #Start date: 6th May 2025
-version="Version: 3.0"
+version="Version: 3.2"
 
 #Usage example: trimmingfiltering.sh
 #No arguments expected, but -v and -h are available
@@ -20,7 +20,7 @@ version="Version: 3.0"
 
 #######################################################################
 # inicialización de logs vacíos
-cat /dev/null > logs/*
+cat /dev/null > logs/*-v
 
 #explain the codec
 { echo -e "Use -h for help or -v for the version."
@@ -31,7 +31,8 @@ SLIDINGWINDOW="4:20"
 MINLEN="40" #ente 36-50 suele estar bien
 LEADING="3" #como elimina desde el principio donde la secuenciación tiene baja calidad, evita cortar demaisado
 TRAILING="20" #elimina desde atrás pb con phredscore menor a 20
-ILLUMINACLIP="TruSeq3-PE-2.fa:2:30:10" #contiene el archivo de los adaptadores: el máximo de mismatch que se aceptan:palindromeClipthreshold:simpleCLipThreshold
+ILLUMINACLIP="/data/2025/grado_biotech/sara.levano/miniforge3/envs/RNAseq/share/trimmomatic-0.39-2/adapters/TruSeq2-PE.fa:2:30:10" #contiene el archivo de los adaptadores: el máximo de mismatch que se aceptan:palindromeClipthreshold:simpleCLipThreshold
+#En el ilumina clip, para los adapatadores he puesto la ruta completa, pero creo que deberia haber alguna otra forma de ponerlo
 
 #Manejar opciones y argumentos
 while getopts "hvm:w:l:t:i:o:f:c:p:" opt; do
@@ -58,8 +59,6 @@ done
 echo "Usando SLIDINGWINDOW=$SLIDINGWINDOW y MINLEN=$MINLEN" 
 } 2>> >(tee -a logs/all_files.err) >> >(tee -a logs/all_files.out) 
 #mkdir -p "$output_dir" "$fastqc_dir" "$multiqc_dir" 
-
-
 #Comprobar que los directorios existan
 echo -e "\nChecking if output directory exists" 
 if [ ! -d "$input_dir" ]
@@ -84,6 +83,7 @@ if [ ! -d "$multiqc_dir" ]
 then 
      echo "$multiqc_dir does not path exist"
 fi
+
 
 #crea los directorios que especifíca
 for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filtrar se encuentran en esa carpeta. $file debería ser una ruta ansoluta al file
@@ -126,10 +126,10 @@ for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filt
     echo "Processing "$sample"..."
     #name=${sample%.*} #Para quitar la extensión y poder poner el nombre de la muestra en los archivos input y putput
     {
-      java -jar trimmomatic-0.39.jar PE -phred33 \
+      trimmomatic PE -phred33 \
       "$file1" "$file2" \
       "$output_dir/${sample}_1_paired.fastq.gz" "$output_dir/${sample}_1_unpaired.fastq.gz" \
-      "$output_dir/${sample}_2_paired.fastq.gz" "$output_dir$/{sample}_2_unpaired.fastq.gz" \
+      "$output_dir/${sample}_2_paired.fastq.gz" "$output_dir/${sample}_2_unpaired.fastq.gz" \
       ILLUMINACLIP:$ILLUMINACLIP \
       SLIDINGWINDOW:$SLIDINGWINDOW \
       LEADING:$LEADING TRAILING:$TRAILING \
@@ -152,10 +152,11 @@ done
 
 
 # Hacer multiqc para integrar el análisis del fastqc
-{ echo "Running MultiQC..." | tee -a logs/stdout
-multiqc "$fastqc_dir" -n "multiqc_trimmed_analysis.html" -o "$multiqc_dir" } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
+{ echo "Running MultiQC..."
+multiqc "$fastqc_dir" -n "multiqc_trimmed_analysis.html" -o "$multiqc_dir" 
+echo -e "Analysis completed." >> >(tee -a logs/all_files.out)
+} 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
    
 
-echo -e "Analysis completed." >> >(tee -a logs/all_files.out)
 ###############################################
 #chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
