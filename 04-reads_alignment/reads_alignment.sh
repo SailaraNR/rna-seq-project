@@ -20,7 +20,7 @@ cat /dev/null > logs/*-v
 while getops "hvd:F:R:G:A:o:l:"; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
-           "Usage example:\n $0 -d input_reads_dir -F carpeta de los FQ -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt" | tee -a logs/stderr
+           "Usage example:\n $0 -d input_reads_dir -F carpeta_de_los_FQ -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt" | tee -a logs/stderr
             echo "use -h for help and -v for version" | tee -a logs/stderr
             exit 1;;
         v) echo "$version" | tee -a logs/stdout
