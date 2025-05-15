@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 # Este script se encarga de indexar el genoma de referencia para los alineamientos.
 # La herramienta empleada para el alineamiento es Hisat2:
 # https://github.com/DaehwanKimLab/hisat2
@@ -10,37 +10,35 @@
 version="versión 1.0"
 
 # Usage example:
-# ./alignment_script.sh -d input_reads_dir -F FQ.Rfasta -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt
+# ./alignment_script.sh -d input_reads_dir -G genome/genome.fa -A genome/annotation.gtf -o out_dir
 #-v and -h are available for help and version
 
 #######################################################################
 # inicialización de logs vacíos
 cat /dev/null > logs/*-v
 
-while getops "hvd:F:R:G:A:o:l:"; do
+while getopts "hvd:G:A:o:"; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
-           "Usage example:\n $0 -d input_reads_dir -F carpeta_de_los_FQ -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt" | tee -a logs/stderr
+           "Usage example:\n $0 -d input_reads_dir -G genome/genome.fa -A genome/annotation.gtf -o out_dir" | tee -a logs/stderr
             echo "use -h for help and -v for version" | tee -a logs/stderr
             exit 1;;
         v) echo "$version" | tee -a logs/stdout
             exit 0;;
         d) INPUT_DIR="$OPTARG";;
-        F) FQ="$OPTARG";;
         G) GENOME="$OPTARG";;
         A) GTF="$OPTARG";;
         o) OUTPUT_DIR="$OPTARG";;
-        l) sample_list="$OPTARG";;
         \?)  echo -e "Error: Invalid option. This script indexes the genome\n"\
-           "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf -t STAR out_dir -l sample_list.txt"
+           "Usage example:\n $0 -d input_reads_dir -G genome/genome.fa -A genome/annotation.gtf out_dir"
             echo "use -h for help and -v for version" >&2
             exit 1;;
     esac
 done
 
-# File validation: Check if the variables exist
+# Validación de archivos
 # Convertir en bucle para dar permisos
-for file in "$GENOME" "$GTF" "$sample_list" "$INPUT_DIR"; do
+for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
     if [[ ! -e "$file" ]];then
         echo "Error: $file does not exist" | tee -a logs/${file}.err
         exit 1
@@ -61,45 +59,57 @@ for file in "$GENOME" "$GTF" "$sample_list" "$INPUT_DIR"; do
     fi
 done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out) 
 
-#Create output directory and subdirectories:
+#Creación del directorio:
 echo "Creating output directory..."
-if ! [[ -e $OUTPUT_DIR ]]; then
+if ! [[ -e "$OUTPUT_DIR" ]]; then
 	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
-	mkdir $OUTPUT_DIR
+	mkdir "$OUTPUT_DIR"
 fi
 
-#Index creation:
-hisat2-build $genome_fasta $OUTPUT_DIR
 
-# Aligment
-for file in ../02/resultsp/*; do
-    sample=$(basename $file “.fast.gz”)+
+# Indexación del genoma
+echo "Running hisat2-build..." | tee -a logs/stdout
+hisat2-build "$GENOME" "$OUTPUT_DIR/genome_index" 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
+
+# Alineamiento
+for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
+    sample=$(basename "$file" _1_filtered.fastq.gz)
+    file1="${INPUT_DIR}/${sample}_1_filtered.fastq.gz"
+    file2="${INPUT_DIR}/${sample}_2_filtered.fastq.gz"
+    
+    # Crear carpeta de las muestras
+    if [[ ! -e "$OUTPUT_DIR/$sample/results"]]; then
+    mkdir -p "$OUTPUT_DIR/$sample/results"
+    fi
+    
     echo "Aligning $sample ..." | tee -a logs/${sample}.out
     {
-    # -x <genoma_ref> -1 <FW> -2 <RV> -S <output_sam_files>
-    hisat2 -x $OUTPUT_DIR \
-    -1 $INPUT_DIR/$FQ \
-    -2 $INPUT_DIR/$FQ \
-    -S $OUTPUT_DIR/$sample/results/HISAT2.sam && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
-    -p/--threads 6 # En caso de querer especificar los hilos
-    samtools view -bS $OUTPUT_DIR/$sample/results/HISAT2.sam > $OUTPUT_DIR/$sample/results/HISAT2.bam 
-    samtools sort $OUTPUT_DIR/$sample/results/HISAT2.bam -o "${sample}_sorted_.bam"
-    # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
+    # -x <genoma_ref> -1 <FW> -2 <RV> -S <output_sam_files> -p <threads>
+    hisat2 -x "$OUTPUT_DIR/genome_index" \
+    -1 "$file1" \
+    -2 "$file2" \
+    -S "$OUTPUT_DIR/$sample/results/HISAT2.sam" \
+    -p 6 && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
+
+    samtools view -bS "$OUTPUT_DIR/$sample/results/HISAT2.sam" > "$OUTPUT_DIR/$sample/results/HISAT2.bam"
+    samtools sort "$OUTPUT_DIR/$sample/results/HISAT2.bam" -o "$OUTPUT_DIR/$sample/results/${sample}_sorted.bam"
+    # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios y son necesarios para después
     # Se borran el .sam y el .bam desordenado. Lo único que nos interesa es el sorted .bam
-    rm $OUTPUT_DIR/$sample/results/HISAT2.sam
-    rm $OUTPUT_DIR/$sample/results/HISAT2.bam
+    rm "$OUTPUT_DIR/$sample/results/HISAT2.sam"
+    rm "$OUTPUT_DIR/$sample/results/HISAT2.bam"
+
     } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
     echo "Finished $sample" | tee -a logs/${sample}.out
-done < sample_list
+done
 
 # añadir un MultiQC en una carpeta llamada /results/MultiQC
 # Creación del MultiQC results
-# if ! [[ -e "/results/MultiQC" ]]; then
-#	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
-#	mkdir "/results/MultiQC"
-# fi
+if [[ ! -d "$OUTPUT_DIR/MultiQC" ]]; then
+    mkdir -p "$OUTPUT_DIR/MultiQC"
+fi
 
-# MultiQC con los resultados del alineamiento
-# { echo "Running MultiQC..." | tee -a logs/stdout
-# multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "/results/MultiQC"
-# } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
+# MultiQC con los resultados del alineamient
+{
+echo "Running MultiQC..." | tee -a logs/stdout
+multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/MultiQC" \
+} 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
