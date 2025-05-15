@@ -10,15 +10,17 @@
 version="versión 1.0"
 
 # Usage example:
-# ./alignment_script.sh -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf -t STAR out_dir -l sample_list.txt
+# ./alignment_script.sh -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt
 #-v and -h are available for help and version
 
 #######################################################################
+# inicialización de logs vacíos
+cat /dev/null > logs/*-v
 
-while getops "hvd:F:R:G:A:t:o:l:"; do
+while getops "hvd:F:R:G:A:o:l:"; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
-           "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf -t STAR out_dir -l sample_list.txt" | tee -a logs/stderr
+           "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt" | tee -a logs/stderr
             echo "use -h for help and -v for version" | tee -a logs/stderr
             exit 1;;
         v) echo "$version" | tee -a logs/stdout
@@ -28,12 +30,11 @@ while getops "hvd:F:R:G:A:t:o:l:"; do
         R) RV="$OPTARG";;
         G) GENOME="$OPTARG";;
         A) GTF="$OPTARG";;
-        t) align_tool="$OPTARG";;
         o) OUTPUT_DIR="$OPTARG";;
         l) sample_list="$OPTARG";;
         \?)  echo -e "Error: Invalid option. This script indexes the genome\n"\
-           "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf -t STAR out_dir -l sample_list.txt" | tee -a logs/stderr
-            echo "use -h for help and -v for version" | tee -a logs/stderr
+           "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf -t STAR out_dir -l sample_list.txt"
+            echo "use -h for help and -v for version" >&2
             exit 1;;
     esac
 done
@@ -59,7 +60,7 @@ for file in "$GENOME" "$GTF" "$sample_list" "$INPUT_DIR"; do
         chmod +rx "$file"
         echo "Fixed" | tee -a logs/${file}.out
     fi
-done 2> >(tee logs/files.err) > >(tee logs/files.out)
+done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out) 
 
 #Create output directory and subdirectories:
 echo "Creating output directory..."
@@ -80,13 +81,25 @@ while IFS= read -r sample; do
     -1 $INPUT_DIR/$FW \
     -2 $INPUT_DIR/$RV \
     -S $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
+    -p/--threads 12 # En caso de querer especificar los hilos
     samtools view -bS $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam > $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam 
     samtools sort $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam -o $OUTPUT_DIR/$sample/results/HISAT2/sorted_HISAT2.bam
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
-    # -p/--threads 3 # En caso de querer especificar los hilos
-    } 2> >(tee logs/${sample}.err) > >(tee logs/${sample}.out)
+    # Se borran el .sam y el .bam desordenado. Lo único que nos interesa es el sorted .bam
+    rm $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam
+    rm $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam
+    } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
     echo "Finished $sample" | tee -a logs/${sample}.out
 done < sample_list
 
 # añadir un MultiQC en una carpeta llamada /results/MultiQC
-# command 2>&1 >file (mirar esta wea de las redirecciones)
+# Creación del MultiQC results
+# if ! [[ -e "/results/MultiQC" ]]; then
+#	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
+#	mkdir "/results/MultiQC"
+# fi
+
+# MultiQC con los resultados del alineamiento
+# { echo "Running MultiQC..." | tee -a logs/stdout
+# multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "/results/MultiQC"
+# } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
