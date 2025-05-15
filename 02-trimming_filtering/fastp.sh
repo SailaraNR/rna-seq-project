@@ -3,7 +3,7 @@
 #Los archivos que acepta solo son archivos .fastq.gz 
 #Author: Laura Barreales and Sara Lévano
 #Start date: 14th May 2025
-version="Version: 1.0"
+version="Version: 1.3"
 
 #Usage example: ./fastp.sh
 
@@ -45,7 +45,7 @@ cat /dev/null > logs/*
                 exit 1;; #si pone simbolos raros no sirve
         esac
     done
-    echo "Usando calidad mínima = $MIN_QUAL y longitud mínima = $MIN_LEN"
+    echo "Using minimun quality = $MIN_QUAL and minimun length = $MIN_LEN"
 
 
 
@@ -79,7 +79,7 @@ cat /dev/null > logs/*
 for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filtrar se encuentran en esa carpeta. $file debería ser una ruta ansoluta al file
     sample=$(basename "$file" "_1.fastq.gz") #Nos quedamos con el nombre de la muestra. No extensión
     file1="${input_dir}/${sample}_1.fastq.gz"
-    file2="${input_dir}/${sample}_2.fastq.gz"#coge las muestras pareadas
+    file2="${input_dir}/${sample}_2.fastq.gz" #coge las muestras pareadas
     #Vamos a comprobar que el archivo no está vacío
     { echo "Checking if $sample exists and is not empty"
     if [ -s "$file1" ] && [ -s "$file2" ]; then
@@ -90,7 +90,7 @@ for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filt
     fi
     #Vamos a comprobar que el arhivo es .fastq.gz
     echo "Checking whether file extension is .fastq.gz"
-    if [[ "$file1" == *.fastq.gz && "$file2" == *.fastq.gz ]]; then
+    if [[ "$file1" == *.fastq.gz && "$file2" == *.fastq.gz ]]; then 
         echo "File extensions are correct"
     else
         echo "Incorrect file extensions" >&2
