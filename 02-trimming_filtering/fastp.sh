@@ -17,62 +17,63 @@ version="Version: 1.0"
 #TENEMOS QUE CREAR UNA CARPETA PARA MULTIQC Y FASTQC DENTRO DE LOS LOGS
 #######################################################################
 # inicialización de logs vacíos
-cat /dev/null > logs/*-
+cat /dev/null > logs/*
 
 #Usage
-{ echo -e "Use -h for help or -v for the version. \nDo not introduce any arguments unless you want to change filter parameters." | tee -a logs/stdout
+{ echo -e "Use -h for help or -v for the version. \nIntroudce input, output, fastqc and multiqc directories, but do not introduce more arguments unless you want to change filter parameters." 
 
-# Parámetros por defecto para fastp por si el usuario no pone ninguno
-#Si el usuario pone alguno, estas variables se reescribiran gracias al getopts 
-MIN_QUAL=20
-MIN_LEN=40 #ente 36-50 suele estar bien
+    # Parámetros por defecto para fastp por si el usuario no pone ninguno
+    #Si el usuario pone alguno, estas variables se reescribiran gracias al getopts 
+    MIN_QUAL=20
+    MIN_LEN=40 #ente 36-50 suele estar bien
 
-#Manejar opciones y argumentos
-while getopts "hvm:l:i:o:f:c:" opt; do
-    case $opt in
-        h) echo -e "Usage help:\nThis script filters and trims raw sequences using fastp."
-           echo -e "Usage:\n\t$0 [-m MIN_QUAL] [-l MIN_LEN] [-i INPUT] [-o OUTPUT] [-f FASTQC_DIR] [-c MULTIQC_DIR]"
-           exit 0;;
-        v) echo "$version"
-           exit 0;;
-        m) MIN_QUAL="$OPTARG" ;;
-        l) MIN_LEN="$OPTARG" ;;
-        i) input_dir="$OPTARG" ;;
-        o) output_dir="$OPTARG" ;;
-        f) fastqc_dir="$OPTARG" ;;
-        c) multiqc_dir="$OPTARG" ;;
-        \?) echo -e "Invalid option\nUsage: $0 ..." >&2
-            exit 1;; #si pone simbolos raros no sirve
-    esac
-done
-echo "Usando calidad mínima = $MIN_QUAL y longitud mínima = $MIN_LEN"
+    #Manejar opciones y argumentos
+    while getopts "hvm:l:i:o:f:c:" opt; do
+        case $opt in
+            h) echo -e "Usage help:\nThis script filters and trims raw sequences using fastp."
+            echo -e "Usage:\n\t$0 [-m MIN_QUAL] [-l MIN_LEN] [-i INPUT] [-o OUTPUT] [-f FASTQC_DIR] [-c MULTIQC_DIR]"
+            exit 0;;
+            v) echo "$version"
+            exit 0;;
+            m) MIN_QUAL="$OPTARG" ;;
+            l) MIN_LEN="$OPTARG" ;;
+            i) input_dir="$OPTARG" ;;
+            o) output_dir="$OPTARG" ;;
+            f) fastqc_dir="$OPTARG" ;;
+            c) multiqc_dir="$OPTARG" ;;
+            \?) echo -e "Invalid option\nUsage: $0 ..." >&2
+                exit 1;; #si pone simbolos raros no sirve
+        esac
+    done
+    echo "Usando calidad mínima = $MIN_QUAL y longitud mínima = $MIN_LEN"
+
+
+
+    #Comprobar que los directorios existan
+    echo -e "\nChecking if output directory exists" 
+    if [ ! -d "$input_dir" ]
+    then 
+        echo "$input_dir does not path exist"
+    fi
+    #Comprobar que los directorios existan
+    echo -e "\nChecking if output directory exists" 
+    if [ ! -d "$output_dir" ]
+    then 
+        echo "$output_dir does not path exist"
+    fi
+    #Comprobar que los directorios existan
+    echo -e "\nChecking if output directory exists" 
+    if [ ! -d "$fastqc_dir" ]
+    then 
+        echo "$fastqc_dir does not path exist"
+    fi
+    #Comprobar que los directorios existan
+    echo -e "\nChecking if output directory exists" 
+    if [ ! -d "$multiqc_dir" ]
+    then 
+        echo "$multiqc_dir does not path exist"
+    fi
 } 2>> >(tee -a logs/all_files.err) >> >(tee -a logs/all_files.out)
-
-
-#Comprobar que los directorios existan
-echo -e "\nChecking if output directory exists" 
-if [ ! -d "$input_dir" ]
-then 
-     echo "$input_dir does not path exist"
-fi
-#Comprobar que los directorios existan
-echo -e "\nChecking if output directory exists" 
-if [ ! -d "$output_dir" ]
-then 
-     echo "$output_dir does not path exist"
-fi
-#Comprobar que los directorios existan
-echo -e "\nChecking if output directory exists" 
-if [ ! -d "$fastqc_dir" ]
-then 
-     echo "$fastqc_dir does not path exist"
-fi
-#Comprobar que los directorios existan
-echo -e "\nChecking if output directory exists" 
-if [ ! -d "$multiqc_dir" ]
-then 
-     echo "$multiqc_dir does not path exist"
-fi
 
 # Procesar todos los archivos .fastq.gz
 for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filtrar se encuentran en esa carpeta. $file debería ser una ruta ansoluta al file
@@ -109,15 +110,25 @@ for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filt
 
     {
     fastp \
-        -i "$file1" -I "$file2" \ #son los archivos del 00/results
-        -o "$output_dir/${sample}_1_filtered.fastq.gz" \ #archivos de salida pareados
-        -O "$output_dir/${sample}_2_filtered.fastq.gz" \ #se guardarán en 02/results
-        -q "$MIN_QUAL" -l "$MIN_LEN" \ #calidad minima para trimar (q), longitud minima después del trimado (l
-        --detect_adapter_for_pe \ #detecta los adaptadores automaticamente, los nuestro también
-        --thread 4 \ #se podría quitar
-        --html "$output_dir/${sample}_fastp.html" \ #te devuelve un informe .html, pero haremos fastqc de todas formas
-        --json "$output_dir/${sample}_fastp.json" \ #informe técnico, podría quitarse
-        --report_title "$sample fastp report"  #nombre del report
+        -i "$file1" -I "$file2" \
+        -o "$output_dir/${sample}_1_filtered.fastq.gz" \
+        -O "$output_dir/${sample}_2_filtered.fastq.gz" \
+        -q "$MIN_QUAL" -l "$MIN_LEN" \
+        --detect_adapter_for_pe \
+        --thread 4 \
+        --html "$output_dir/${sample}_fastp.html" \
+        --json "$output_dir/${sample}_fastp.json" \
+        --trim_poly_x --poly_x_min_len 10 \
+        --report_title "$sample fastp report"  
+        #i: input files, son los archivos del 00/results
+        #o: outputfiles, serán los archivos de resultados que se guardan en el outputdir
+        #q: calidad mínima para trimar o no
+        #l: logitud minima después del trimado
+        #detecta adaptadores
+        #usa 4 hilos
+        #genera informes  .html y .json
+        #detecta polyA y polyT que sean de mínimo 10 bases y los elimina
+        #el titulo del report 
     } 2>> >(tee -a logs/${sample}_fastp.err) >> >(tee -a logs/${sample}_fastp.out)
 #ahora vamos a ejecutar fastqc para las seqs trimadas, están en 01/results y los guarda en 01/results/fastqc
     {
