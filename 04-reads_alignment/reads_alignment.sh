@@ -20,14 +20,13 @@ cat /dev/null > logs/*-v
 while getops "hvd:F:R:G:A:o:l:"; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
-           "Usage example:\n $0 -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt" | tee -a logs/stderr
+           "Usage example:\n $0 -d input_reads_dir -F carpeta de los FQ -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt" | tee -a logs/stderr
             echo "use -h for help and -v for version" | tee -a logs/stderr
             exit 1;;
         v) echo "$version" | tee -a logs/stdout
             exit 0;;
         d) INPUT_DIR="$OPTARG";;
-        F) FW="$OPTARG";;
-        R) RV="$OPTARG";;
+        F) FQ="$OPTARG";;
         G) GENOME="$OPTARG";;
         A) GTF="$OPTARG";;
         o) OUTPUT_DIR="$OPTARG";;
@@ -70,24 +69,25 @@ if ! [[ -e $OUTPUT_DIR ]]; then
 fi
 
 #Index creation:
-hisat2-build $genome_fasta $OUTPUT_DIR/HISAT2_genome_indices/genome_index
+hisat2-build $genome_fasta $OUTPUT_DIR
 
 # Aligment
-while IFS= read -r sample; do
+for file in ../02/resultsp/*; do
+    sample=$(basename $file “.fast.gz”)+
     echo "Aligning $sample ..." | tee -a logs/${sample}.out
     {
     # -x <genoma_ref> -1 <FW> -2 <RV> -S <output_sam_files>
-    hisat2 -x $OUTPUT_DIR/HISAT2_genome_indices/genome_index \
-    -1 $INPUT_DIR/$FW \
-    -2 $INPUT_DIR/$RV \
-    -S $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
-    -p/--threads 12 # En caso de querer especificar los hilos
-    samtools view -bS $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam > $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam 
-    samtools sort $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam -o $OUTPUT_DIR/$sample/results/HISAT2/sorted_HISAT2.bam
+    hisat2 -x $OUTPUT_DIR \
+    -1 $INPUT_DIR/$FQ \
+    -2 $INPUT_DIR/$FQ \
+    -S $OUTPUT_DIR/$sample/results/HISAT2.sam && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
+    -p/--threads 6 # En caso de querer especificar los hilos
+    samtools view -bS $OUTPUT_DIR/$sample/results/HISAT2.sam > $OUTPUT_DIR/$sample/results/HISAT2.bam 
+    samtools sort $OUTPUT_DIR/$sample/results/HISAT2.bam -o "${sample}_sorted_.bam"
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios
     # Se borran el .sam y el .bam desordenado. Lo único que nos interesa es el sorted .bam
-    rm $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.sam
-    rm $OUTPUT_DIR/$sample/results/HISAT2/HISAT2.bam
+    rm $OUTPUT_DIR/$sample/results/HISAT2.sam
+    rm $OUTPUT_DIR/$sample/results/HISAT2.bam
     } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
     echo "Finished $sample" | tee -a logs/${sample}.out
 done < sample_list
