@@ -47,11 +47,12 @@ if ! [[ -e $output ]]; then
 fi
 
 #Counting reads
-featureCounts -p -O -T 2 -a "$GTF" -o "$output" "$alignment" | tee -a logs/stdout 2>> logs/stderr
+featureCounts -p -t exon -O -T 6 -a "$GTF" -o "$output" "$alignment" | tee -a logs/stdout 2>> logs/stderr
 
 # -p species that fragments (or templates) will be counted instead of reads. This is only applicable for paired-end reads.
+# -t type of fragments (exon)
 # -O assigns reads to all their overlapping meta-features.
-# -T specifies the number (2) of threads to be used.
+# -T specifies the number (6) of threads to be used.
 # -a is the genome annotation file ($GTF).
 # -o specifies the name of the output file, which includes the read counts ($output).
 # $alignment is an alignment file: in this file, the reads we want to count are aligned to the same genome as the annotation file

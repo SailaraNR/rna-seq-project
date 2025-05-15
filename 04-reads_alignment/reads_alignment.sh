@@ -10,7 +10,7 @@
 version="versión 1.0"
 
 # Usage example:
-# ./alignment_script.sh -d input_reads_dir -F _R1.fastq -R _R2.fastq -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt
+# ./alignment_script.sh -d input_reads_dir -F FQ.Rfasta -G genome/genome.fa -A genome/annotation.gtf out_dir -l sample_list.txt
 #-v and -h are available for help and version
 
 #######################################################################
