@@ -15,7 +15,7 @@ version="versión 1.0"
 
 #######################################################################
 # inicialización de logs vacíos
-cat /dev/null > logs/*-v
+cat /dev/null > logs/
 
 while getopts "hvd:G:A:o:" opt; do
     case $opt in
