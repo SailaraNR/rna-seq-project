@@ -75,7 +75,7 @@ echo "Running hisat2-build..." | tee -a logs/stdout
 hisat2-build "$GENOME" "$OUTPUT_DIR/genome_index" 2>> >(tee -a all_files.out/err)
 
 # Alineamiento
-for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
+for file in "$INPUT_DIR/*_1_filtered.fastq.gz"; do
     sample=$(basename "$file" _1_filtered.fastq.gz)
     file1="${INPUT_DIR}/${sample}_1_filtered.fastq.gz"
     file2="${INPUT_DIR}/${sample}_2_filtered.fastq.gz"
