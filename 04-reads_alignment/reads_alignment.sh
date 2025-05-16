@@ -17,7 +17,7 @@ version="versión 1.0"
 # inicialización de logs vacíos
 cat /dev/null > logs/*-v
 
-while getopts "hvd:G:A:o:"; do
+while getopts "hvd:G:A:o:" opt; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
            "Usage example:\n $0 -d input_reads_dir -G genome/genome.fa -A genome/annotation.gtf -o out_dir" | tee -a logs/stderr
@@ -29,7 +29,7 @@ while getopts "hvd:G:A:o:"; do
         G) GENOME="$OPTARG";;
         A) GTF="$OPTARG";;
         o) OUTPUT_DIR="$OPTARG";;
-        \?)  echo -e "Error: Invalid option. This script indexes the genome\n"\
+        \?)  echo -e "Error: Invalid option. This script indexes the genome\n" \
            "Usage example:\n $0 -d input_reads_dir -G genome/genome.fa -A genome/annotation.gtf out_dir"
             echo "use -h for help and -v for version" >&2
             exit 1;;
@@ -39,25 +39,24 @@ done
 # Validación de archivos
 # Convertir en bucle para dar permisos
 for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
+    log_file=$(basename "$file")
     if [[ ! -e "$file" ]];then
-        echo "Error: $file does not exist" | tee -a logs/${file}.err
+        echo "Error: $file does not exist" | tee -a logs/${log_file}.err
         exit 1
-    elif [[ -r "$file" && -x "$file" ]]; then
-        echo "File is readable and executable" | tee -a logs/${file}.out
     elif [ -r "$file" ]; then
-        echo "File is readable but not executable. Fixing." | tee -a logs/${file}.out
+        echo "File is readable but not executable. Fixing." | tee -a logs/${log_file}.out
         chmod +x "$file"
-        echo "fixed" | tee -a logs/${file}.out
+        echo "fixed" | tee -a logs/${log_file}.out
     elif [ -x "$file" ]; then
-        echo "File is executable but not readable" | tee -a logs/${file}.out
-        chmod +r "$file"
-        echo "Fieexd" | tee -a logs/${file}.out
+        echo "File is executable but not readable" | tee -a logs/${log_file}.out
+        chmod +r "$file"oki
+        echo "Fieexd" | tee -a logs/${log_file}.out
     else
-        echo "File is neither readable nor executable. Fixing" | tee -a logs/${file}.out
+        echo "File is neither readable nor executable. Fixing" | tee -a logs/${log_file}.out
         chmod +rx "$file"
-        echo "Fixed" | tee -a logs/${file}.out
+        echo "Fixed" | tee -a logs/${log_file}.out
     fi
-done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out) 
+done  2>> >(tee -a logs/file.err)  >> >(tee -a logs/file.out) 
 
 #Creación del directorio:
 echo "Creating output directory..."
@@ -65,7 +64,6 @@ if ! [[ -e "$OUTPUT_DIR" ]]; then
 	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
 	mkdir "$OUTPUT_DIR"
 fi
-
 
 # Indexación del genoma
 echo "Running hisat2-build..." | tee -a logs/stdout
@@ -78,7 +76,7 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     file2="${INPUT_DIR}/${sample}_2_filtered.fastq.gz"
     
     # Crear carpeta de las muestras
-    if [[ ! -e "$OUTPUT_DIR/$sample/results"]]; then
+    if [[ ! -e "$OUTPUT_DIR/$sample/results" ]]; then
     mkdir -p "$OUTPUT_DIR/$sample/results"
     fi
     
