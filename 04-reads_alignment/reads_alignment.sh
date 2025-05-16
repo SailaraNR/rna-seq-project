@@ -107,12 +107,12 @@ done
 
 # añadir un MultiQC en una carpeta llamada /results/MultiQC
 # Creación del MultiQC results
-if [[ ! -d "$OUTPUT_DIR/MultiQC" ]]; then
-    mkdir -p "$OUTPUT_DIR/MultiQC"
+if [[ ! -d "$OUTPUT_DIR/multiQC" ]]; then
+    mkdir -p "$OUTPUT_DIR/multiQC"
 fi
 
 # MultiQC con los resultados del alineamient
 {
 echo "Running MultiQC..." | tee -a logs/stdout
-multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/MultiQC" \
+multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/multiQC" \
 } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
