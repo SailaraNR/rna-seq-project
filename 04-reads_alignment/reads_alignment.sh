@@ -34,40 +34,40 @@ while getopts "hvd:G:A:o:" opt; do
             echo "use -h for help and -v for version" >&2
             exit 1;;
     esac
-done
+done 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
 
 # Validación de archivos
 # Convertir en bucle para dar permisos
 for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
-    log_file=$(basename "$file")
     if [[ ! -e "$file" ]];then
-        echo "Error: $file does not exist" | tee -a logs/${log_file}.err
+        echo "Error: $file does not exist" >&2
         exit 1
     elif [ -r "$file" ]; then
-        echo "File is readable but not executable. Fixing." | tee -a logs/${log_file}.out
+        echo "File is readable but not executable. Fixing."
         chmod +x "$file"
-        echo "fixed" | tee -a logs/${log_file}.out
+        echo "fixed"
     elif [ -x "$file" ]; then
-        echo "File is executable but not readable" | tee -a logs/${log_file}.out
+        echo "File is executable but not readable"
         chmod +r "$file"oki
-        echo "Fieexd" | tee -a logs/${log_file}.out
+        echo "Fieexd"
     else
-        echo "File is neither readable nor executable. Fixing" | tee -a logs/${log_file}.out
+        echo "File is neither readable nor executable. Fixing"
         chmod +rx "$file"
-        echo "Fixed" | tee -a logs/${log_file}.out
+        echo "Fixed"
     fi
-done  2>> >(tee -a logs/file.err)  >> >(tee -a logs/file.out) 
+done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out) 
 
 #Creación del directorio:
 echo "Creating output directory..."
 if ! [[ -e "$OUTPUT_DIR" ]]; then
 	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
 	mkdir "$OUTPUT_DIR"
-fi
+fi 2>> >(tee -a logs/output_dir.err)  >> >(tee -a logs/output_dir.out) # los errores antes del 
+# bucle importante van en otro archivo
 
 # Indexación del genoma
 echo "Running hisat2-build..." | tee -a logs/stdout
-hisat2-build "$GENOME" "$OUTPUT_DIR/genome_index" 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
+hisat2-build "$GENOME" "$OUTPUT_DIR/genome_index" 2>> >(tee -a all_files.out/err)
 
 # Alineamiento
 for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
