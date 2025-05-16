@@ -16,6 +16,10 @@ version="versión 1.0"
 #######################################################################
 # inicialización de logs vacíos
 cat /dev/null > logs/
+if [[ ! -e "logs/all_files.out" ]] && [[ ! -e "logs/all_files.err" ]]; then
+    mkdir -p  "logs/all_files.out"
+    mkdir -p  "logs/all_files.err"
+fi
 
 while getopts "hvd:G:A:o:" opt; do
     case $opt in
@@ -42,18 +46,19 @@ for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
     if [[ ! -e "$file" ]];then
         echo "Error: $file does not exist" >&2
         exit 1
-    elif [ -r "$file" ]; then
-        echo "File is readable but not executable. Fixing."
-        chmod +x "$file"
-        echo "fixed"
-    elif [ -x "$file" ]; then
-        echo "File is executable but not readable"
-        chmod +r "$file"oki
-        echo "Fieexd"
-    else
-        echo "File is neither readable nor executable. Fixing"
-        chmod +rx "$file"
-        echo "Fixed"
+    # Como los archivos se encuentran en una carpeta que no es nuestra, esto no tiene sentido porque no tenemos permisos
+    # elif [ -r "$file" ]; then
+    #     echo "File is readable but not executable. Fixing."
+    #     chmod +x "$file"
+    #     echo "fixed"
+    # elif [ -x "$file" ]; then
+    #     echo "File is executable but not readable"
+    #     chmod +r "$file"oki
+    #     echo "Fieexd"
+    # else
+    #     echo "File is neither readable nor executable. Fixing"
+    #     chmod +rx "$file"
+    #     echo "Fixed"
     fi
 done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out) 
 
