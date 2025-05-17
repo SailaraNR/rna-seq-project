@@ -1,9 +1,11 @@
 #!/bin/bash
-# Este script se encarga de indexar el genoma de referencia para los alineamientos.
+# Este script se encarga de indexar el genoma de referencia y realizar los alineamientos.
 # La herramienta empleada para el alineamiento es Hisat2:
 # https://github.com/DaehwanKimLab/hisat2
 # También se empleó samtools para convertir de .sam a .bam:
 # https://www.htslib.org/
+# Al final se realiza un MultiQC:
+# https://www.youtube.com/watch?v=i1TkBBCqH-8
 
 #Author: Laura Barreales y Sara Lévano
 #Start date: 10th may 2025
@@ -81,8 +83,8 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     file2="${INPUT_DIR}/${sample}_2_filtered.fastq.gz"
     
     # Crear carpeta de las muestras
-    if [[ ! -e "$OUTPUT_DIR/$sample/results" ]]; then
-    mkdir -p "$OUTPUT_DIR/$sample/results"
+    if [[ ! -e "$OUTPUT_DIR/$sample" ]]; then
+    mkdir -p "$OUTPUT_DIR/$sample"
     fi
     
     echo "Aligning $sample ..." | tee -a logs/${sample}.out
@@ -91,15 +93,15 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     hisat2 -x "$OUTPUT_DIR/genome_index" \
     -1 "$file1" \
     -2 "$file2" \
-    -S "$OUTPUT_DIR/$sample/results/HISAT2.sam" \
+    -S "$OUTPUT_DIR/$sample/HISAT2.sam" \
     -p 6 && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
 
-    samtools view -bS "$OUTPUT_DIR/$sample/results/HISAT2.sam" > "$OUTPUT_DIR/$sample/results/HISAT2.bam"
-    samtools sort "$OUTPUT_DIR/$sample/results/HISAT2.bam" -o "$OUTPUT_DIR/$sample/results/${sample}_sorted.bam"
+    samtools view -bS "$OUTPUT_DIR/$sample/HISAT2.sam" > "$OUTPUT_DIR/$sample/HISAT2.bam"
+    samtools sort "$OUTPUT_DIR/$sample/HISAT2.bam" -o "$OUTPUT_DIR/$sample/${sample}_sorted.bam"
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios y son necesarios para después
     # Se borran el .sam y el .bam desordenado. Lo único que nos interesa es el sorted .bam
-    rm "$OUTPUT_DIR/$sample/results/HISAT2.sam"
-    rm "$OUTPUT_DIR/$sample/results/HISAT2.bam"
+    rm "$OUTPUT_DIR/$sample/HISAT2.sam"
+    rm "$OUTPUT_DIR/$sample/HISAT2.bam"
 
     } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
     echo "Finished $sample" | tee -a logs/${sample}.out
