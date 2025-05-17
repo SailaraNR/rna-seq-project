@@ -48,7 +48,7 @@ for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
     if [[ ! -e "$file" ]];then
         echo "Error: $file does not exist" >&2
         exit 1
-    # Como los archivos se encuentran en una carpeta que no es nuestra, esto no tiene sentido porque no tenemos permisos
+    # Como los archivos se encuentran en una carpeta que no es nuestra, esto no tiene sentido porque no podemos hacer chmod
     # elif [ -r "$file" ]; then
     #     echo "File is readable but not executable. Fixing."
     #     chmod +x "$file"
@@ -95,16 +95,19 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     -2 "$file2" \
     -S "$OUTPUT_DIR/$sample/HISAT2.sam" \
     -p 6 && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
-
-    samtools view -bS "$OUTPUT_DIR/$sample/HISAT2.sam" > "$OUTPUT_DIR/$sample/HISAT2.bam"
-    samtools sort "$OUTPUT_DIR/$sample/HISAT2.bam" -o "$OUTPUT_DIR/$sample/${sample}_sorted.bam"
+    } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
+    
+    echo "Converting $sample to a sorted bam file..." | tee -a logs/${sample}.out
+    {
+    samtools view -bS "$OUTPUT_DIR/$sample/HISAT2.sam" > "$OUTPUT_DIR/$sample/HISAT2.bam" && echo "Converting sample $sample done" || echo "Converting sample $sample failed"
+    samtools sort "$OUTPUT_DIR/$sample/HISAT2.bam" -o "$OUTPUT_DIR/$sample/${sample}_sorted.bam" && echo "Sorting sample $sample done" || echo "Sorting sample $sample failed"
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios y son necesarios para después
     # Se borran el .sam y el .bam desordenado. Lo único que nos interesa es el sorted .bam
     rm "$OUTPUT_DIR/$sample/HISAT2.sam"
     rm "$OUTPUT_DIR/$sample/HISAT2.bam"
+    } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
+    echo "Finished with $sample"
 
-    } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
-    echo "Finished $sample" | tee -a logs/${sample}.out
 done
 
 # añadir un MultiQC en una carpeta llamada /results/MultiQC
