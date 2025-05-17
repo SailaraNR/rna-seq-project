@@ -112,7 +112,7 @@ done
 
 # añadir un MultiQC en una carpeta llamada /results/MultiQC
 # Creación del MultiQC results
-if [[ ! -d "$OUTPUT_DIR/MultiQC" ]]; then
+if [[ ! -e "$OUTPUT_DIR/MultiQC" ]]; then
     mkdir -p "$OUTPUT_DIR/MultiQC"
 fi
 
