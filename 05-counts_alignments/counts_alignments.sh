@@ -19,7 +19,7 @@ if [[ ! -e "logs/all_files.out" ]] && [[ ! -e "logs/all_files.err" ]]; then
     mkdir -p  "logs/all_files.err"
 fi
 
-while getops "hvA:o:f:" opt; do
+while getops "hvA:o:d:" opt; do
     case $opt in
         v) echo "$version" | tee -a logs/stdout
         exit 0;;
