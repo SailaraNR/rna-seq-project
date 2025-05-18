@@ -55,8 +55,8 @@ for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
     #     echo "fixed"
     # elif [ -x "$file" ]; then
     #     echo "File is executable but not readable"
-    #     chmod +r "$file"oki
-    #     echo "Fieexd"
+    #     chmod +r "$file"
+    #     echo "Fixed"
     # else
     #     echo "File is neither readable nor executable. Fixing"
     #     chmod +rx "$file"

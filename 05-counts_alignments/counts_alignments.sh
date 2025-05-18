@@ -41,10 +41,24 @@ if [[ ! -e "$GTF" ]] || [[ ! -r "$GTF" ]]; then
 	echo "Error: $GTF does not exist or does not have read permissions" >&2
 	exit 1
 fi 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
-if [[ ! -e "$alignment" ]] || [[ ! -r "$alignment" ]]; then
-	echo "Error: $alignment does not exist or does not have read permissions" >&2
+{
+if [[ ! -e "$alignment" ]]; then
+    echo "Error: $alignment does not exist" >&2
 	exit 1
-fi 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
+elif [ -r "$alignment" ]; then
+    echo "File is readable but not executable. Fixing."
+    chmod +x "$alignment"
+    echo "fixed"
+elif [ -x "$alignment" ]; then
+    echo "File is executable but not readable"
+    chmod +r "$alignment"
+    echo "Fixed"
+else
+    echo "File is neither readable nor executable. Fixing"
+    chmod +rx "$alignment"
+    echo "Fixed"
+fi
+} 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
 
 #Create output file
 echo "Creating output.txt file..."
@@ -52,27 +66,27 @@ if ! [[ -e $output ]]; then
 	echo "Output file does not exists, creating..."
 	touch $output
 fi 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out)
-{
-for file in "$alignment"/SRR*/*.bam; do # 04-reads_alignment/results en nuestro caso sería el $alignment
-        sample=$(basename "$file" "_sorted.bam")
-        echo -e "\nChecking if $sample exists and it's not empty"
-        if [[ -f "$file" && -s "$file" ]]; then
-            echo "$sample exists and is not empty"
-        else
-            echo "$sample is not a file or is empty"  >&2
-            exit 1
-        fi
-        echo "Checking $sample permissions"
-            if [[ ! -r "$file" ]]; then
-                echo "File is not readable. Fixing..." >&2
-                chmod +r "$file" && echo "Permissions fixed" || echo "Could not change permisions" >&2
-                    continue
-            fi
-    done
 
+for file in "$alignment"/SRR*/*.bam; do # 04-reads_alignment/results en nuestro caso sería el $alignment
+    sample=$(basename "$file" "_sorted.bam")
+    echo -e "\nChecking if $sample exists and it's not empty"
+    if [[ -f "$file" && -s "$file" ]]; then
+        echo "$sample exists and is not empty"
+    else
+        echo "$sample is not a file or is empty"  >&2
+        exit 1
+    fi
+    echo "Checking $sample permissions"
+        if [[ ! -r "$file" ]]; then
+            echo "File is not readable. Fixing..." >&2
+            chmod +r "$file" && echo "Permissions fixed" || echo "Could not change permisions" >&2
+                continue
+        fi
     #Counting reads
-    featureCounts -p -O -T 6 -a "$GTF" -o "$output" "$file" && echo "Counts for "$sample" done" || echo "Counts for "$sample" failed"
-} 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
+    featureCounts -p -O -T 6 -a "$GTF" -o "$output" "$file" && echo "Counts for "$sample" done" || echo "Counts for "$sample" failed" 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
+done  2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out)
+
+
 
 # -p species that fragments (or templates) will be counted instead of reads. This is only applicable for paired-end reads.
 # -t type of fragments (exon, intron...)
@@ -80,4 +94,4 @@ for file in "$alignment"/SRR*/*.bam; do # 04-reads_alignment/results en nuestro 
 # -T specifies the number (6) of threads to be used.
 # -a is the genome annotation file ($GTF).
 # -o specifies the name of the output file, which includes the read counts ($output).
-# $alignment is an alignment file: in this file, the reads we want to count are aligned to the same genome as the annotation file
+# $file in $alignment is an alignment file: in this file, the reads we want to count are aligned to the same genome as the annotation file
