@@ -12,6 +12,12 @@ version="versión 1.0"
 #-v and -h are available for help and version
 
 #######################################################################
+#inicialización de logs
+cat /dev/null > logs/
+if [[ ! -e "logs/all_files.out" ]] && [[ ! -e "logs/all_files.err" ]]; then
+    mkdir -p  "logs/all_files.out"
+    mkdir -p  "logs/all_files.err"
+fi
 
 while getops "hvA:o:f:"; do
     case $opt in
