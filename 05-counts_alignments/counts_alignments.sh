@@ -6,18 +6,17 @@
 #Start date: 10th may 2025
 version="versión 1.3"
 # Usage example:
-# ./counts_alignment.sh -A genome_annotation.gtf -o output -d dir_sorted_ex$
+# ./counts_alignment.sh -A genome_annotation.gtf -d dir_sorted_bam
 #-v and -h are available for help and version
 #######################################################################
 
-while getopts "hvA:o:d:" opt; do
+while getopts "hvA:d:" opt; do
     case $opt in
         v) echo "$version" 
         exit 0;;
-        h) echo -e "This script counts the number of reads of an aligment using ./$0 -A genome_annotation.gtf -o output.txt -f sorted"
+        h) echo -e "This script counts the number of reads of an aligment using ./$0 -A genome_annotation.gtf -f sorted"
         exit 0;;
         A) GTF="$OPTARG";;
-        o) output="$OPTARG";;
         d) alignment="$OPTARG";;
         \?) echo -e "Invalid option: This script counts the number of reads of \n./$0 -A genome_annotation.gtf -o output.txt -d dir_so"
         exit 1;;
@@ -71,8 +70,8 @@ for file in ${alignment}/SRR*/*.bam; do # 04-reads_alignment/results en nuestro 
     fi
 
     #Create output file
-    echo "Creating output_$sample.txt file..."
-    sample_out="results/$output_$sample.txt"
+    echo "Creating output $sample.txt file..."
+    sample_out="results/$sample.txt"
     if ! [[ -e "$sample_out" ]]; then
             echo "Output file does not exists, creating..."
             touch $sample_out
