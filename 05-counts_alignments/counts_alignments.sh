@@ -6,7 +6,7 @@
 #Start date: 10th may 2025
 version="versión 1.3"
 # Usage example:
-# ./counts_alignment.sh -A genome_annotation.gtf -o output.txt -d dir_sorted_ex$
+# ./counts_alignment.sh -A genome_annotation.gtf -o results/output.txt -d dir_sorted_ex$
 #-v and -h are available for help and version
 #######################################################################
 
@@ -52,14 +52,6 @@ fi 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out)
     fi
 } 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out)
 
-#Create output file
-echo "Creating output.txt file..."
-if ! [[ -e $output ]]; then
-        echo "Output file does not exists, creating..."
-        touch $output
-fi 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out)
-
-
 for file in ${alignment}/SRR*/*.bam; do # 04-reads_alignment/results en nuestro caso sería el $alignment
     sample=$(basename "$file" "_sorted.bam")
     {
@@ -70,14 +62,23 @@ for file in ${alignment}/SRR*/*.bam; do # 04-reads_alignment/results en nuestro 
         echo "$sample is not a file or is empty"  >&2
         exit 1
     fi
+
     echo "Checking $sample permissions"
-        if [[ ! -r "$file" ]]; then
-            echo "File is not readable. Fixing..." >&2
-            chmod +r "$file" && echo "Permissions fixed" || echo "Could not change permisions" >&2
-                continue
-        fi
+    if [[ ! -r "$file" ]]; then
+        echo "File is not readable. Fixing..." >&2
+        chmod +r "$file" && echo "Permissions fixed" || echo "Could not change permisions" >&2
+        continue
+    fi
+
+    #Create output file
+    echo "Creating output.txt file..."
+    if ! [[ -e "$sample/$output" ]]; then
+            echo "Output file does not exists, creating..."
+            touch "$sample/$output"
+    fi
+
     #Counting reads
-    featureCounts -p -O -T 6 -a "$GTF" -o "$output/$sample" "$file" && echo "Counts for "$sample" done" || echo "Count ofr "$sample" failed"
+    featureCounts -p -O -T 6 -a "$GTF" -o "$sample/$output" "$file" && echo "Counts for "$sample" done" || echo "Count ofr "$sample" failed"
     }  2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
 done 
 
