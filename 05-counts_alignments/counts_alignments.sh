@@ -77,16 +77,16 @@ for file in ${alignment}/SRR*/*.bam; do # 04-reads_alignment/results en nuestro 
                 continue
         fi
     #Counting reads
-    featureCounts -p -O -T 6 -a "$GTF" -o "$output" "$file" && echo "Counts for "$sample" done" || echo "Coun"
+    featureCounts -p -O -T 6 -a "$GTF" -o "$output/$sample" "$file" && echo "Counts for "$sample" done" || echo "Count ofr "$sample" failed"
     }  2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
 done 
 
 echo "Counting has finished"
-# -p species that fragments (or templates) will be counted instead of reads. This is only applicable for pair$
+# -p species that fragments (or templates) will be counted instead of reads. This is only applicable for pairs
 # -t type of fragments (exon, intron...)
 # -O assigns reads to all their overlapping meta-features.
 # -T specifies the number (6) of threads to be used.
 # -a is the genome annotation file ($GTF).
 # -o specifies the name of the output file, which includes the read counts ($output).
-# $file in $alignment is an alignment file: in this file, the reads we want to count are aligned to the same 
+# $file in $alignment is an alignment file: in this file, the reads we want to count are aligned with the GTF
 
