@@ -94,6 +94,7 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     -1 "$file1" \
     -2 "$file2" \
     -S "$OUTPUT_DIR/$sample/HISAT2.sam" \
+    --summary-file "$OUTPUT_DIR/$sample/${sample}_hisat2_summary.txt" \
     -p 10 && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
     } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
     
