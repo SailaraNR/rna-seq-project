@@ -94,7 +94,7 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     -1 "$file1" \
     -2 "$file2" \
     -S "$OUTPUT_DIR/$sample/HISAT2.sam" \
-    -p 6 && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
+    -p 10 && echo "Alignment with sample $sample done" || echo "Alignment with sample $sample failed"
     } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out) 
     
     echo "Converting $sample to a sorted bam file..." | tee -a logs/${sample}.out
@@ -102,9 +102,9 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     samtools view -bS "$OUTPUT_DIR/$sample/HISAT2.sam" > "$OUTPUT_DIR/$sample/HISAT2.bam" && echo "Converting sample $sample done" || echo "Converting sample $sample failed"
     samtools sort "$OUTPUT_DIR/$sample/HISAT2.bam" -o "$OUTPUT_DIR/$sample/${sample}_sorted.bam" && echo "Sorting sample $sample done" || echo "Sorting sample $sample failed"
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios y son necesarios para después
-    # Se borran el .sam y el .bam desordenado. Lo único que nos interesa es el sorted .bam
+    # No nos interesa el sam, pero sí el sorted_bam para el conteo y el bam sirve también para hacer después un MultiQC.
     rm "$OUTPUT_DIR/$sample/HISAT2.sam"
-    rm "$OUTPUT_DIR/$sample/HISAT2.bam"
+    # rm "$OUTPUT_DIR/$sample/HISAT2.bam"
     } 2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
     echo "Finished with $sample"
 
