@@ -19,8 +19,8 @@ version="versión 1.0"
 # inicialización de logs vacíos
 cat /dev/null > logs/
 if [[ ! -e "logs/all_files.out" ]] && [[ ! -e "logs/all_files.err" ]]; then
-    mkdir -p  "logs/all_files.out"
-    mkdir -p  "logs/all_files.err"
+    touch "logs/all_files.out"
+    touch "logs/all_files.err"
 fi
 
 while getopts "hvd:G:A:o:" opt; do
@@ -99,8 +99,8 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     
     echo "Converting $sample to a sorted bam file..." | tee -a logs/${sample}.out
     {
-    samtools view -bS "$OUTPUT_DIR/$sample/HISAT2.sam" > "$OUTPUT_DIR/$sample/HISAT2.bam" && echo "Converting sample $sample done" || echo "Converting sample $sample failed"
-    samtools sort "$OUTPUT_DIR/$sample/HISAT2.bam" -o "$OUTPUT_DIR/$sample/${sample}_sorted.bam" && echo "Sorting sample $sample done" || echo "Sorting sample $sample failed"
+    samtools view -bS "$OUTPUT_DIR/$sample/HISAT2.sam" > "$OUTPUT_DIR/$sample/${sample}.bam" && echo "Converting sample $sample done" || echo "Converting sample $sample failed"
+    samtools sort "$OUTPUT_DIR/$sample/${sample}.bam" -o "$OUTPUT_DIR/$sample/${sample}_sorted.bam" && echo "Sorting sample $sample done" || echo "Sorting sample $sample failed"
     # samtools permite conviertir .sam en .bam, ocupa menos al ser los binarios y son necesarios para después
     # No nos interesa el sam, pero sí el sorted_bam para el conteo y el bam sirve también para hacer después un MultiQC.
     rm "$OUTPUT_DIR/$sample/HISAT2.sam"
