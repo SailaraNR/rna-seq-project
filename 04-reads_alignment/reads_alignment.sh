@@ -5,7 +5,7 @@
 # También se empleó samtools para convertir de .sam a .bam:
 # https://www.htslib.org/
 # Al final se realiza un MultiQC:
-# https://www.youtube.com/watch?v=i1TkBBCqH-8
+# https://github.com/MultiQC/MultiQC
 
 #Author: Laura Barreales y Sara Lévano
 #Start date: 10th may 2025
@@ -120,5 +120,5 @@ fi
 # MultiQC con los resultados del alineamient
 {
 echo "Running MultiQC..." | tee -a logs/stdout
-multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/multiqc"
+multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/multiqc" --force
 } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
