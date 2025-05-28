@@ -119,6 +119,7 @@ for file in "$input_dir"/*_1.fastq.gz; do #Los archivos fastq para trimar y filt
         --html "$output_dir/${sample}_fastp.html" \
         --json "$output_dir/${sample}_fastp.json" \
         --trim_poly_x --poly_x_min_len 10 \
+        --trim_front1 10 --trim_front2 10\
         --report_title "$sample fastp report"  
         #i: input files, son los archivos del 00/results
         #o: outputfiles, serán los archivos de resultados que se guardan en el outputdir
