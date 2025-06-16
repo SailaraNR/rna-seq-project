@@ -14,11 +14,11 @@ while getopts "hvA:d:" opt; do
     case $opt in
         v) echo "$version" 
         exit 0;;
-        h) echo -e "This script counts the number of reads of an aligment using ./$0 -A genome_annotation.gtf -f sorted"
+        h) echo -e "This script counts the number of reads of an aligment using ./$0 -A genome_annotation.gtf -d dir_sorted_bam"
         exit 0;;
         A) GTF="$OPTARG";;
         d) alignment="$OPTARG";;
-        \?) echo -e "Invalid option: This script counts the number of reads of \n./$0 -A genome_annotation.gtf -o output.txt -d dir_so"
+        \?) echo -e "Invalid option: This script counts the number of reads of \n./$0 -A genome_annotation.gtf -d dir_sorted_bam"
         exit 1;;
     esac
 done 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out)
@@ -78,7 +78,7 @@ for file in ${alignment}/SRR*/*.bam; do # 04-reads_alignment/results en nuestro 
     fi
 
     #Counting reads
-    featureCounts -p -O -T 6 -a "$GTF" -o "$sample_out" "$file" && echo "Counts for "$sample" done" || echo "Count ofr "$sample" failed"
+    featureCounts -p -O -T 6 -a "$GTF" -o "$sample_out" "$file" && echo "Counts for "$sample" done" || echo "Counts for "$sample" failed"
     }  2>> >(tee -a logs/${sample}.err)  >> >(tee -a logs/${sample}.out)
 done 
 
@@ -89,5 +89,5 @@ echo "Counting has finished"
 # -T specifies the number (6) of threads to be used.
 # -a is the genome annotation file ($GTF).
 # -o specifies the name of the output file, which includes the read counts ($output).
-# $file in $alignment is an alignment file: in this file, the reads we want to count are aligned with the GTF
+# $file (loop) in $alignment is an alignment file: in this file, the reads we want to count are aligned with the GTF
 
