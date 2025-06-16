@@ -66,7 +66,7 @@ done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out)
 
 #Creación del directorio:
 echo "Creating output directory..."
-if ! [[ -e "$OUTPUT_DIR" ]]; then
+if [[ ! -e "$OUTPUT_DIR" ]]; then
 	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
 	mkdir "$OUTPUT_DIR"
 fi 2>> >(tee -a logs/output_dir.err)  >> >(tee -a logs/output_dir.out) # los errores antes del 
