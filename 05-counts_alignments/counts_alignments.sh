@@ -1,5 +1,5 @@
 # !/bin/bash
-# Este script se encarga de contar el múmero de lecturas de un alineamiento par$
+# Este script se encarga de contar el múmero de lecturas de un alineamiento
 # La herramienta usada es FeatureCounts:
 # https://rnnh.github.io/bioinfo-notebook/docs/featureCounts.html
 #Author: Laura Barreales y Sara Lévano
