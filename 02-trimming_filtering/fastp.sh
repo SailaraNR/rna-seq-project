@@ -15,6 +15,8 @@
 
 #If user does not introduce any minimun quality or minimum length, minimum quality will be 20, and minimum length will be 40bp
 
+#Link to fastp manual: https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp 
+
 #######################################################################
 
 readonly version="Version: 1.3"
