@@ -1,29 +1,29 @@
-# !/bin/bash
-#En este script se crearan los links simbólicos para poder acceder a los archivos fasta de nuestas
-#compañeras de clase.
+#!/bin/bash
 #Author: Laura Barreales y Sara Lévano
 #Start date: 9th may 2025
-#Version: 1.0
+#Purpose: This script will create symbolic links in the current directory which will enable the user to access fasta files of our classmates
+#Usage example: symlinks.sh -d absolute/path/to/directory
 
-#Usage example
-#symlinks.sh -d ruta/absoluta/del/directorio
-version="version 2.0"
+#Arguments expected: -d absolute/path/to/directory
+
 ############################################################################################
 
-# inicialización de logs vacíos
+readonly version="version 2.0"
+
+# Initializing empty logs
 cat /dev/null > logs/*
 
 
-# explain the code
+# Explain the code
 { echo -e "Use: \n\t-h for help\n\t-v for the version of the script \n\t-d ruta/absoluta/del/directorio to create de symbolic links" 
 
-#Vamos a ver si se han proporcionado argumentos
+#Check if arguments are provided
 if [ $# -eq 0 ]; then
         echo -e "No options provided. \nUse $0 -h for help" >&2
         exit 1
 fi
 
-#Manejar opciones y argumentos
+#Managing options and arguments
 while getopts ":d:hv" opt; do
         case $opt in
                 h) echo -e "You asked for usage help\n"\
@@ -35,7 +35,7 @@ while getopts ":d:hv" opt; do
                 d) directory="$OPTARG"
                    echo "Proccessing directory: $directory ..." 
                     ;;
-                :) echo "Option -$OPTARG requieres an argument" >&2 #si pone solo -d no sirve
+                :) echo "Option -$OPTARG requieres an argument" >&2 #if only the flag is written, the script exits
                    exit 1 ;;
                 \?) echo -e "Invalid option or missing argument\n"\
                    "Usage example: $0 SRR_Acc_List.txt" >&2
@@ -45,12 +45,13 @@ while getopts ":d:hv" opt; do
 done
 } 2>> >(tee -a logs/all_samples.err) >> >(tee -a logs/all_samples.out) 
 
+#Accesing fastafiles and creating symlinks named after the sample without file extension
 for file in "$directory"/*; do
     echo -e "\n" } >> >(tee -a logs/${name}.out) 
-    sample=$(basename "$file") #Nos quedamos con el nombre de la muestra
-    name=${sample%.*} #quita la extensión del archivo, se usará para dar nombre a los logs de salida
+    sample=$(basename "$file") 
+    name=${sample%.*} 
     { echo "This is $sample" 
-    #Vamos a comprobar que el archivo no está vacío
+    #Checking emptiness of the file
     echo "Checking if the file exists and it's not empty" 
     if [ -s "$file" ]; then
             echo "File exist and is not empty"  
@@ -59,16 +60,16 @@ for file in "$directory"/*; do
             exit 1
     fi 
 
-    #Vamos a comprobar que el arhivo es .fastq
-    echo "Checking whether file extension is .fastq" 
+    #Checking if file has a .fastq.gz extension. If its not, that file will be skkiped
+    echo "Checking whether file extension is .fastq.gz" 
     if [[ "$file" == *.fastq.gz ]]; then
             echo "File extension is correct" 
     else
             echo "File extension not correct. Must be .fastq.gz file. Skipping $sample " >&2
-            continue #Para que salte al siguiente archivo si no es un .fastq.gz
+            continue 
     fi 
 
-    #Vamos a comprobar que el archivo es legible y ejecutable
+    #Cheking if the file readable and executable
     echo "Checking $sample permissions" 
 
     if [[ -r "$file" ]]; then
@@ -80,11 +81,11 @@ for file in "$directory"/*; do
     fi
 
     
-    #Crearemos un link simbólico para cada archivo que se guardará en este directorio
+    #Creating the links in the current directory
     echo "Creating symbolic link for $sample ..." 
-    ln -s $file $sample   #Coge de la ruta del directorio dado cada archivo que haya en él y lo guarda como un symlink en este directorio
+    ln -s $file $sample   
     mv $sample results/
-    #Vamos a comprobar que haya ido bien la creación del link
+    #Checking if symlink creation was successful
     if [ $? != 0 ]; then
         echo "Something went wrong during symbolic links creation for file $sample" >&2
         exit 1  
