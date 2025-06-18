@@ -1,4 +1,8 @@
 # !/bin/bash
+
+#Borrar
+
+
 #Este script coge los archivos con las raw data, las analiza, trima y elimina secuencias
 #Los archivos que acepta solo son archivos .fastq 
 #Author: Laura Barreales and Sara Lévano
