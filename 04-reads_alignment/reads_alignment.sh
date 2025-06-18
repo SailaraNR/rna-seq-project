@@ -10,10 +10,10 @@
 #input_reads_dir="../02-raw_data/results"
 #out_dir="./results"
 
-#For each sample ther will be created a forlder that contains .bam file, a summary.txt and a sorted.bam file
+#For each sample ther will be created a folder that contains .bam file, a summary.txt and a sorted.bam file
 
 # Manual to Hisat2 (alignment tool): https://github.com/DaehwanKimLab/hisat2
-# Samtools (to convert .sam to .bam) manual: https://www.htslib.org/
+# manual to Samtools (to convert .sam to .bam): https://www.htslib.org/
 # Manual to MultiQC (alignment analysis): https://github.com/MultiQC/MultiQC
 
 
@@ -23,7 +23,7 @@ readonly version="versión 1.0"
 # Initializing empty logs
 cat /dev/null > logs/
 
-#Checking if .out and .err files exists, if not they will be created
+#Checking if .out and .err files exist, if not they will be created
 if [[ ! -e "logs/all_files.out" ]] && [[ ! -e "logs/all_files.err" ]]; then
     touch "logs/all_files.out"
     touch "logs/all_files.err"
@@ -86,6 +86,7 @@ fi 2>> >(tee -a logs/output_dir.err)  >> >(tee -a logs/output_dir.out)
 
 # Indexing genome
 echo "Running hisat2-build..." | tee -a logs/stdout
+# hisat2-build <genome_file> <output_dir>
 hisat2-build "$GENOME" "$OUTPUT_DIR/genome_index" 2>> >(tee -a all_files.out/err)
 
 # Alingment
@@ -132,5 +133,6 @@ fi
 # MultiQC to see the alignment quality
 {
 echo "Running MultiQC..." | tee -a logs/stdout
+# multiqc <samples_dir> -n <name_multiqc.html> -o <output_dir> --force
 multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/multiqc" --force
 } 2>> >(tee -a logs/multiqc/multiqc.err) >> >(tee -a logs/multiqc/multiqc.out)
