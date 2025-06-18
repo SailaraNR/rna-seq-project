@@ -1,38 +1,42 @@
-# !/bin/bash
-
-#en este script voy a modificar las redirecciones, pero como el otro funciona creo uno aparte
-
-#Este script coge los archivos de la carpeta 00 qeu corresponden a las raw-data y analiza su calidad de secuencia
-#Los archivos que acepta solo son archivos .fastq 
+#!/bin/bash
 #Author: Laura Barreales and Sara Lévano
 #Start date: 4th May 2025
-version="Version 2.0 "
+#Purpose. This script use raw sequences to analyze its quality. Only accepts .fastq.gz files
 
-#Usage example: pre-fastqc.sh
-#No arguments expected, but -v and -h are available
-#link al manual de FastQC: https://github.com/s-andrews/FastQC/blob/master/fastqc
-#link al manual de MultiQC. No es de github, pero he accedido desde github:https://docs.seqera.io/multiqc/getting_started/running_multiqc 
+#Usage example: pre-fastqc.sh -i <input_dir> -0 <output_dir>
+#-v and -h are available to check script's version or ask for script's usage
 
-##These must be the input paht and output path in order to correctely running the script
-input_path="../00-raw_data/results"
-output_path="./results"
+#These must be the input paht and output path in order to correctely running the script
+#input_path="../00-raw_data/results"
+#output_path="./results"
+
+#Output: For each sample there will be created two files: a .zip file and a .html file which has the analysis for that sample
+#Another file called multiqc_analysis.html will be created. This file collects all de sample's analysis in one .html file
+#All this files will be stored in a folder called resutls in the specified output directory
+#Additionally each sample has two log files .out and .err where the stdou and stderr will be written
+#There are two logfiles .out and .err, which refers not to each sample but to the first checking of characteristics
+
+#Manual de FastQC: https://github.com/s-andrews/FastQC/blob/master/fastqc
+#Manual de MultiQC. No es de github, pero he accedido desde github:https://docs.seqera.io/multiqc/getting_started/running_multiqc 
+
 #######################################################################
 
-# inicialización de logs vacíos
+readonly version="Version 2.0 "
+# Initializing empty logs
 cat /dev/null > logs/*
 
 
 #explain the code
 { echo -e "Use -h for help or -v for the version. \nUse -i to introduce input directory and -o to introduce output directory for fastqc outputfiles" 
-# getops y while para la ayuda, la versión y el ejemplo de uso
 
-#Vamos a ver si se han proporcionado el número de argumentos correctos 
+
+#Check if arguments are provided
 if [ $# -eq 0 ]; then
         echo -e "Need at least one argument. \nRun $0 -h for usage help" >&2
         exit 1
 fi
 
-#Manjar opciones y argumentos
+#Managing options and arguments
 while getopts ":hvo:i:" opt; do
     case $opt in
         h) echo -e "You asked for usage help\n"\
@@ -55,7 +59,7 @@ while getopts ":hvo:i:" opt; do
 done
 
 
-# Comprobar que los directorios existan
+# Checking if directory exists. If output_dir does not exist, it will be created
 echo -e "\nChecking if output directory exists" 
 if [ ! -d "$input_path" ]
 then 
@@ -72,10 +76,12 @@ fi
 
 echo -e "\nChecking if output directory exists" 
 if [ ! -d "$output_path" ]
+    echo "Creating output directory as it does not exist"
+    mkdir -p "$output_path"
 then 
      echo "Input path exists"
 else 
-     if [ "$(ls $output_path)" ]
+     if [ "$(ls "$output_path")" ]
      then  
          echo "Directory is not empty"
      else 
@@ -83,14 +89,13 @@ else
      fi
 fi
 } 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
-#crea un fildescriptor nuevo para (tee -a etc)
-## >> es redirección pero >( ) es process substitution
+
 
 
 for file in "$input_path"/*; do
-        #Vamos a comprobar que el archivo no está vacío
-        sample=$(basename "$file") #Nos quedamos con el nombre de la muestra para los echo
-        name=${sample%.*} #quita la extensión del archivo, se usará para dar nombre a los files de salida
+        #Checking emptiness of the file
+        sample=$(basename "$file") 
+        name=${sample%.*} #output files name (does not have the extension)
         { echo -e "\nChecking if $sample exists and it's not empty" 
         if [[ -f "$file" && -s "$file" ]]; then
             echo "$sample exist and is not empty"  
@@ -99,11 +104,11 @@ for file in "$input_path"/*; do
             exit 1
         fi 
 
-        #Vamos a comprobar que el arhivo es .fastqc
+        #Checking if file has a .fastq.gz extension if it is not, the script will skip that file
         echo "Checking whether file extension is .fastq.gz" 
         if [[ "$file" == *.fastq.gz ]]; then
             echo "File extension is correct" 
-            #Vamos a comprobar que el archivo es legible. Solo hace falta que sea legible
+            #Cheking if the file readable
             echo "Checking $sample permissions" 
             if [[ ! -r "$file" ]]; then
                 echo "File is not readable. Fixing..." >&2
@@ -111,13 +116,10 @@ for file in "$input_path"/*; do
                     continue
             fi
             
-            #Ahora vamos a comprobar que la calidad de la secuencia con fastqc
+            #Checking quality with fastqc
             echo "Checking quality score in $sample" 
-            #creo que podría ponerse así 
-            fastqc $file -o $output_path   #porque $file debería ser la ruta absoluta del archivo (al menos así era en el archivo symlinks)
-           
-            #quitaría la linea de abajo, está mal para este bucle concreto
-            #fastqc $input_path/*.fastq -o $output_path | tee -a logs/${sample}.out #-o guarda los archivos en esa ruta, que en este caso es la subcarpeta results
+            fastqc $file -o $output_path   
+            #Checking if the analysis was successful
             if  [ $? -eq 0 ]; then
                 echo "Fastqc analysis completed for $sample" 
             else
@@ -126,32 +128,17 @@ for file in "$input_path"/*; do
         else
             echo "this is not .fastq.gz, moving to the next..." >&2
             continue
-            #Si funciona lo de guardar los symlinks en 00/results no hace falta esto, pero se podría dejar como cortafuegos
+
         fi;
         } 2>> >(tee -a logs/${name}.err) >> >(tee -a logs/${name}.out) 
 done 
 
 { echo -e "\nNow Multiqc will run in order to make a summary of the analysis" 
-echo "But first it will check if files' extensions are .html after fastqc analysis" 
-#Vamos a comprobar que el arhivo es .html
-#for file in "$output_path"/*; do
-#    echo "Checking whether file extension is .html" 
-#    if [[ "$file" == *.html ]]; then
-#            echo "File extension is correct" 
-#    else
-#            echo "File extension not correct. Must be .html file" 
-#            exit 1
-#    fi 
-#done 
-#multiqc ./results -n multiqc_analysis2.html | tee -a logs/${sample}.out \ 2> >(tee -a logs/${sample}.err >&2) #multiqc se va a ejecutar en el 01/results que es donde se han guardado las secuencias fastqc
+    echo "But first it will check if files' extensions are .html after fastqc analysis" 
 
-#A lo mejor así queda más elegante
-multiqc $output_path -n multiqc_analysis2.html #multiqc se va a ejecutar en el 01/results que es donde se han guardado las secuencias fastqc
-# se habrá creado un archivo html con un resumen de el análisis de fastqc
-# -n es para ponerle nombre al archivo
-echo -e "Multiqc has finished its job. \nYou can now check for an .html file in $(pwd) \nto find the analysis" 
+    #Using multiqc to collect all the analysis in one .html file called: multiqc_analysis.html
+    multiqc $output_path -n multiqc_analysis.html 
+    echo -e "Multiqc has finished its job. \nYou can now check for an .html file in $(pwd) \nto find the analysis" 
 } 2>> >(tee -a logs/multiqc.err)  >> >(tee -a logs/multiqc.out) 
 
-######################################################
-#Voy a dejar este enlace aquí, ya lo quitaremos.
-#Es para usar multiqc https://docs.seqera.io/multiqc/getting_started/running_multiqc
+
