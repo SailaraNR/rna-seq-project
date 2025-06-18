@@ -15,6 +15,9 @@
 
 #If user does not introduce any minimun quality or minimum length, minimum quality will be 20, and minimum length will be 40bp
 
+#Output: For each sample there will be two filtered .fastq.gz files (paired sequences), a .html report and a .json report
+#Additionally an .html and a .zip report will be created for each filterd sequence inthe /results/fastqc folder
+
 #Link to fastp manual: https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp 
 
 #######################################################################
