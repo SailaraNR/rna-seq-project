@@ -1,28 +1,41 @@
 #!/bin/bash
-# Este script se encarga de indexar el genoma de referencia y realizar los alineamientos.
-# La herramienta empleada para el alineamiento es Hisat2:
-# https://github.com/DaehwanKimLab/hisat2
-# También se empleó samtools para convertir de .sam a .bam:
-# https://www.htslib.org/
-# Al final se realiza un MultiQC:
-# https://github.com/MultiQC/MultiQC
-
 #Author: Laura Barreales y Sara Lévano
 #Start date: 10th may 2025
-version="versión 1.0"
+#Purpose: This scripts index genome reference and align reads to the genome reference
 
-# Usage example:
-# ./alignment_script.sh -d input_reads_dir -G genome/genome.fa -A genome/annotation.gtf -o out_dir
+# Usage example: ./alignment_script.sh -d <input_reads_dir> -G <genome/genome.fa> -A <genome/annotation.gtf> -o <out_dir">
 #-v and -h are available for help and version
 
+#This directories should be the input so that this script runs correctly (in this context)
+#input_reads_dir="../02-raw_data/results"
+#out_dir="./results"
+
+#For each sample ther will be created a forlder that contains .bam file, a summary.txt and a sorted.bam file
+
+# Manual to Hisat2 (alignment tool): https://github.com/DaehwanKimLab/hisat2
+# Samtools (to convert .sam to .bam) manual: https://www.htslib.org/
+# Manual to MultiQC (alignment analysis): https://github.com/MultiQC/MultiQC
+
+
 #######################################################################
-# inicialización de logs vacíos
+readonly version="versión 1.0"
+
+# Initializing empty logs
 cat /dev/null > logs/
+
+#Checking if .out and .err files exists, if not they will be created
 if [[ ! -e "logs/all_files.out" ]] && [[ ! -e "logs/all_files.err" ]]; then
     touch "logs/all_files.out"
     touch "logs/all_files.err"
 fi
 
+#Check if arguments are provided
+if [ $# -lt 4 ]; then
+    echo -e "Need at least four arguments. \nRun $0 -h for usage help" >&2
+     exit 1
+fi
+
+#Managing options and arguments
 while getopts "hvd:G:A:o:" opt; do
     case $opt in
         h) echo -e "This script indexes the genome\n"\
@@ -42,8 +55,7 @@ while getopts "hvd:G:A:o:" opt; do
     esac
 done 2>> >(tee -a logs/all_files.err)  >> >(tee -a logs/all_files.out) 
 
-# Validación de archivos
-# Convertir en bucle para dar permisos
+# Validating files and giving permissions
 for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
     if [[ ! -e "$file" ]];then
         echo "Error: $file does not exist" >&2
@@ -64,25 +76,25 @@ for file in "$GENOME" "$GTF" "$INPUT_DIR"; do
     fi
 done  2>> >(tee -a logs/${file}.err)  >> >(tee -a logs/${file}.out) 
 
-#Creación del directorio:
+
+# Checking if directory exists. If output_dir does not exist, it will be created
 echo "Creating output directory..."
 if [[ ! -e "$OUTPUT_DIR" ]]; then
 	echo "Output directory does not exists, creating..." | tee -a logs/output_dir.out
-	mkdir "$OUTPUT_DIR"
-fi 2>> >(tee -a logs/output_dir.err)  >> >(tee -a logs/output_dir.out) # los errores antes del 
-# bucle importante van en otro archivo
+	mkdir -p "$OUTPUT_DIR"
+fi 2>> >(tee -a logs/output_dir.err)  >> >(tee -a logs/output_dir.out) 
 
-# Indexación del genoma
+# Indexing genome
 echo "Running hisat2-build..." | tee -a logs/stdout
 hisat2-build "$GENOME" "$OUTPUT_DIR/genome_index" 2>> >(tee -a all_files.out/err)
 
-# Alineamiento
+# Alingment
 for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
     sample=$(basename "$file" "_1_filtered.fastq.gz")
     file1="${INPUT_DIR}/${sample}_1_filtered.fastq.gz"
     file2="${INPUT_DIR}/${sample}_2_filtered.fastq.gz"
     
-    # Crear carpeta de las muestras
+    # Creating sample's folder
     if [[ ! -e "$OUTPUT_DIR/$sample" ]]; then
     mkdir -p "$OUTPUT_DIR/$sample"
     fi
@@ -111,13 +123,13 @@ for file in "$INPUT_DIR"/*_1_filtered.fastq.gz; do
 
 done
 
-# añadir un MultiQC en una carpeta llamada /results/MultiQC
-# Creación del MultiQC results
+
+# Creating MultiQC results folder
 if [[ ! -e "$OUTPUT_DIR/multiqc" ]]; then
     mkdir -p "$OUTPUT_DIR/multiqc"
 fi
 
-# MultiQC con los resultados del alineamient
+# MultiQC to see the alignment quality
 {
 echo "Running MultiQC..." | tee -a logs/stdout
 multiqc "$OUTPUT_DIR" -n "multiqc_alignment_analysis.html" -o "$OUTPUT_DIR/multiqc" --force
