@@ -1,15 +1,25 @@
 # !/bin/bash
-# Este script se encarga de contar el múmero de lecturas de un alineamiento
-# La herramienta usada es FeatureCounts:
-# https://rnnh.github.io/bioinfo-notebook/docs/featureCounts.html
 #Author: Laura Barreales y Sara Lévano
 #Start date: 10th may 2025
-version="versión 1.3"
-# Usage example:
-# ./counts_alignment.sh -A genome_annotation.gtf -d dir_sorted_bam
+#Purpose: This scripts counts the number of read of an alignment
+
+# Usage example: ./counts_alignment.sh -A <genome_annotation.gtf> -d <dir_sorted_bam>
 #-v and -h are available for help and version
+
+#This directories should be the input so that this script runs correctly (in this context)
+#dir_sorted_bam="../04-raw_data/results"
+
+#Output: There will be created a summary and a .txt file for each sample
+
+# Manual to FeatureCounts: https://rnnh.github.io/bioinfo-notebook/docs/featureCounts.html
 #######################################################################
 
+readonly version="versión 1.3"
+
+# Initializing empty logs
+cat /dev/null > logs/
+
+#Checking if .out and .err files exists, if not they will be created
 while getopts "hvA:d:" opt; do
     case $opt in
         v) echo "$version" 
