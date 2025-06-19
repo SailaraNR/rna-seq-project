@@ -18,7 +18,7 @@
 #Output: For each sample there will be two filtered .fastq.gz files (paired sequences), a .html report and a .json report
 #Additionally an .html and a .zip report will be created for each filterd sequence inthe /results/fastqc folder
 
-#Link to fastp manual: https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp 
+#Link to fastp manual: https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp and https://github.com/OpenGene/fastp/blob/master/README.md 
 
 #######################################################################
 
