@@ -275,7 +275,7 @@ Also it contains two folders:
 
 The [symlinks.sh](http://symlinks.sh) script will create symbolic links for those files in this folder.  
 **Usage example: ```symlinks.sh -d <absolute/path/to/directory>```**  
-Additionally you can write symlinks.sh \-h or symlinks.sh \-v to ask for usage help or to know which version the script is respectively.  
+Additionally you can write ```symlinks.sh \-h``` or ```symlinks.sh \-v``` to ask for usage help or to know which version the script is respectively.  
 First the scripts checks whether there are the correct number of arguments provided  
 These arguments are managed using a while-getopts-case loop. Afterwards it will initiate a loop which will read every file in the directory to search for [fastq.gz](http://fastq.gz) files that are not empty and are readable. Finally it will create the symbolic link in the results folder.
 
@@ -303,7 +303,7 @@ Also it contains two folders:
 ## About the script:
 
 **Usage example: ```[pre-fastqc.sh](http://pre-fastqc.sh) -i <input_dir> -o <output_dir>```**  
-Additionally you can write [pre-fastqc.sh](http://pre-fastqc.sh) \-h or [pre-fastqc.sh](http://pre-fastqc.sh) \-v to ask for usage help or to know which version the script is respectively.  
+Additionally you can write ```[pre-fastqc.sh](http://pre-fastqc.sh) \-h``` or ```[pre-fastqc.sh](http://pre-fastqc.sh) \-v``` to ask for usage help or to know which version the script is respectively.  
 First the script checks whether there are the correct number of arguments provided.  
 These arguments are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exist, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will run a FastQC analysis of each sample and store its report in the results folder. If this analysis has gone correctly it will print a message on screen.  
 After all the sequences are analyzed, MultiQC will create an .html report to have all the analysis in one file. It will be stored in the results folder  
@@ -356,7 +356,7 @@ if these two parameters are not provided, this script will run with a minimum qu
 ## About the script:
 
 **Usage: ```[fastp.sh](http://fastp.sh)  -m <MIN_QUAL> -l <MIN_LEN> -i <INPUT> -o <OUTPUT> -f <FASTQC_DIR> -c <MULTIQC_DIR>```**  
-Additionally you can write [fastp.sh](http://fastp.sh) \-h or [fastp.sh](http://fastp.sh) \-v to ask for usage help or to know which version the script is respectively.
+Additionally you can write ```[fastp.sh](http://fastp.sh) \-h``` or ```[fastp.sh](http://fastp.sh) \-v``` to ask for usage help or to know which version the script is respectively.
 
 These options are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exists, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will filter and trim using the tool fastp to each pair of paired samples.  
 This are the options used for fastp:
@@ -466,7 +466,7 @@ The bioinformatic tools used is:
 
 - FeatureCounts (reads counts): [https://rnnh.github.io/bioinfo-notebook/docs/featureCounts.html](https://rnnh.github.io/bioinfo-notebook/docs/featureCounts.html) 
 
-First, the script initializes the logs and checks if .out and .err files exist, if not they will be created. Then checks for the correct number of arguments and uses a getopts for managing options. The script validates the directories and files given and changes permissions if possible, or creates them if they don’t exist. If the user does not introduce the data correctly, the script will end and return a “help” message. Also, this help can be accessed by using \-h option “./counts\_alignments.sh \-h”.
+First, the script initializes the logs and checks if .out and .err files exist, if not they will be created. Then checks for the correct number of arguments and uses a getopts for managing options. The script validates the directories and files given and changes permissions if possible, or creates them if they don’t exist. If the user does not introduce the data correctly, the script will end and return a “help” message. Also, this help can be accessed by using \-h option ```./counts\_alignments.sh \-h```.
 
 ```featureCounts -p -O -T <threads> -a <genome_annotations> -o <name_output_file> <alignment_file>```
 
