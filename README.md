@@ -37,7 +37,8 @@ Each folder’s content is explained later
 When executing the analysis this RNAseq environment must be activated  
 In order to export the environment to your computer, run this command on the terminal (requires conda or mamba):  
 	```mamba env export \> RNAseq.yml```  
-Then activate it:  
+Then activate it: 
+
 	```conda activate RNAseq or source /absolute/path/to/environmentbinaries/activate RNAseq```
 
 ## About the environment
@@ -273,7 +274,7 @@ Also it contains two folders:
 ## About the script:
 
 The [symlinks.sh](http://symlinks.sh) script will create symbolic links for those files in this folder.  
-**Usage example: ``` symlinks.sh -d <absolute/path/to/directory> ```**  
+**Usage example: ```symlinks.sh -d <absolute/path/to/directory>```**  
 Additionally you can write symlinks.sh \-h or symlinks.sh \-v to ask for usage help or to know which version the script is respectively.  
 First the scripts checks whether there are the correct number of arguments provided  
 These arguments are managed using a while-getopts-case loop. Afterwards it will initiate a loop which will read every file in the directory to search for [fastq.gz](http://fastq.gz) files that are not empty and are readable. Finally it will create the symbolic link in the results folder.
@@ -301,7 +302,7 @@ Also it contains two folders:
 
 ## About the script:
 
-**Usage example: ` [pre-fastqc.sh](http://pre-fastqc.sh) -i <input_dir> -o <output_dir> `**  
+**Usage example: ```[pre-fastqc.sh](http://pre-fastqc.sh) -i <input_dir> -o <output_dir>```**  
 Additionally you can write [pre-fastqc.sh](http://pre-fastqc.sh) \-h or [pre-fastqc.sh](http://pre-fastqc.sh) \-v to ask for usage help or to know which version the script is respectively.  
 First the script checks whether there are the correct number of arguments provided.  
 These arguments are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exist, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will run a FastQC analysis of each sample and store its report in the results folder. If this analysis has gone correctly it will print a message on screen.  
@@ -329,7 +330,7 @@ Also it contains two folders:
 
 ## Input data:
 
-Minimum input data:
+Minimum input data (these are the directories we used):
 
 - input directory="../00-raw\_data/results"  
 - output directory="./results"  
@@ -354,7 +355,7 @@ if these two parameters are not provided, this script will run with a minimum qu
 
 ## About the script:
 
-**Usage: ` [fastp.sh](http://fastp.sh)  -m <MIN_QUAL> -l <MIN_LEN> -i <INPUT> -o <OUTPUT> -f <FASTQC_DIR> -c <MULTIQC_DIR> `**  
+**Usage: ```[fastp.sh](http://fastp.sh)  -m <MIN_QUAL> -l <MIN_LEN> -i <INPUT> -o <OUTPUT> -f <FASTQC_DIR> -c <MULTIQC_DIR>```**  
 Additionally you can write [fastp.sh](http://fastp.sh) \-h or [fastp.sh](http://fastp.sh) \-v to ask for usage help or to know which version the script is respectively.
 
 These options are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exists, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will filter and trim using the tool fastp to each pair of paired samples.  
@@ -407,24 +408,26 @@ Also it contains two folders:
 ## About the script:
 
 This scripts index genome reference and align reads to the genome reference.  
-**Usage example: ` ./alignment_script.sh -d <input_reads_dir> -G <genome/genome.fa> -A <genome/annotation.gtf> -o <out_dir"> `**
+**Usage example: ```./alignment_script.sh -d <input_reads_dir> -G <genome/genome.fa> -A <genome/annotation.gtf> -o <out_dir">```**
 
 The bioinformatic tools used are:  
 Hisat2 (alignment tool): [https://github.com/DaehwanKimLab/hisat2](https://github.com/DaehwanKimLab/hisat2)   
 Samtools (convert .sam to .bam): [https://www.htslib.org/](https://www.htslib.org/)   
 MultiQC (alignment analysis): [https://github.com/MultiQC/MultiQC](https://github.com/MultiQC/MultiQC) 
 
-First, the script initializes the logs and checks if .out and .err files exist, if not they will be created. Then checks for the correct number of arguments and uses a getopts for managing options. The script validates the directories and files given and changes permissions if possible, or creates them if they don’t exist. If the user does not introduce the data correctly, the script will end and return a “help” message. Also, this help can be accessed by using \-h option “./alignment\_script.sh \-h”.
+First, the script initializes the logs and checks if .out and .err files exist, if not they will be created. Then checks for the correct number of arguments and uses a getopts for managing options. The script validates the directories and files given and changes permissions if possible, or creates them if they don’t exist. If the user does not introduce the data correctly, the script will end and return a “help” message. Also, this help can be accessed by using \-h option ```./alignment_script.sh -h”```
 
 Indexing genome:  
-hisat2-build \<genome\_file\> \<output\_dir\>  
+```
+hisat2-build <genome_file> <output_dir>  
 Samples alignment:  
-\-x \<genoma\_ref\> \-1 \<FW\> \-2 \<RV\> \-S \<output\_sam\_files\> \-p \<threads\> \--summary-file \<name.txt\>  
+-x <genoma_ref> -1 <FW> -2 <RV> -S <output_sam_files> -p <threads> --summary-file <name.txt>  
 bam and sorted bam files:  
-samtools view \-bS \<sam\_file\>  
-samtools sort \<bam\_file\> \-o \<name\_sorted\_bam\>  
+samtools view -bS <sam_file>  
+samtools sort <bam_file> -o <name_sorted_bam>  
 Finally, the script performs a MultiQC analysis.  
-multiqc \<samples\_dir\> \-n \<name\_multiqc.html\> \-o \<output\_dir\> \--force
+multiqc <samples_dir> -n <name_multiqc.html> -o <output_dir> --force
+```
 
 This script will create these log files containing stdout and stderr of the general analysis of folder and files at the begining:
 
@@ -457,7 +460,7 @@ Also it contains two folders:
 ## About the script:
 
 This script counts the number of reads of an alignment.  
-**Usage example: ` ./counts_alignment.sh -A <genome_annotation.gtf> -d <dir_sorted_bam> `**
+**Usage example: ```./counts_alignment.sh -A <genome_annotation.gtf> -d <dir_sorted_bam>```**
 
 The bioinformatic tools used is:
 
@@ -465,7 +468,7 @@ The bioinformatic tools used is:
 
 First, the script initializes the logs and checks if .out and .err files exist, if not they will be created. Then checks for the correct number of arguments and uses a getopts for managing options. The script validates the directories and files given and changes permissions if possible, or creates them if they don’t exist. If the user does not introduce the data correctly, the script will end and return a “help” message. Also, this help can be accessed by using \-h option “./counts\_alignments.sh \-h”.
 
-featureCounts \-p \-O \-T \<threads\> \-a \<genome\_annotations\> \-o \<name\_output\_file\> \<alignment\_file\>
+```featureCounts -p -O -T <threads> -a <genome_annotations> -o <name_output_file> <alignment_file>```
 
 This script will create these log files containing stdout and stderr of the general analysis of folder and files at the begining:
 
