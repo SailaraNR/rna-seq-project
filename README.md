@@ -509,7 +509,7 @@ It will create two folders:
 Additionally you can download an interactive .html file  and a static pdf file with the results of the analysis by running this command on RStudio console:
 
 ```{r download-output, eval=FALSE}  
-rmarkdown::render("MineDEseq2.Rmd", output_format = c("html_document", "pdf_document"))
+rmarkdown::render("DEseq2.Rmd", output_format = c("html_document", "pdf_document"))
 ```
 
 ## About the script:
