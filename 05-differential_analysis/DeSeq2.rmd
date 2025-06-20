@@ -38,7 +38,7 @@ required_packages_std <- c("ggpubr", "ggplot2", "dplyr", "tidyverse")
 
 # Bioconductor packages
 required_packages_bio <- c("biomaRt", "clusterProfiler", "DESeq2", "org.Hs.eg.db", "AnnotationDbi", "GO.db", "amap")
-
+ 
 # ---------------------------
 # Install Missing CRAN Packages
 # ---------------------------
