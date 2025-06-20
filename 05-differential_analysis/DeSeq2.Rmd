@@ -398,7 +398,7 @@ enrichment <- enrichGO(gene = interesting_set, # DEGs list
                      OrgDb = org.Hs.eg.db, # organism
                      keyType = "ENSEMBL", # The name included in your backgroud/interesting set
                      ont = "BP", # The analysis you want to run: CC, BP, MF
-                     pvalueCutoff = 0.01, # Adjusted pvalue Cutoff on enrichment test to report
+                     pvalueCutoff = 0.05, # Alternative code: Adjusted pvalue Cutoff on enrichment test to report is less restrictive
                      pAdjustMethod = "BH", # Method for the p.adjusted to be calculated
                      universe = background_genes, # the backgroud genes
                      qvalueCutoff = 0.05)
@@ -418,7 +418,7 @@ barplot <-barplot(enrichment,
 show(barplot)
 
 # Alternative Code: download barplot
-png("plots/GO_barplot.png", width = 300, height = 200)
+png("plots/GO_barplot.png", width = 800, height = 600)
 print(barplot)
 dev.off()
 ```
