@@ -38,7 +38,7 @@ When executing the analysis this RNAseq environment must be activated
 In order to export the environment to your computer, run this command on the terminal (requires conda or mamba):  
 	```mamba env export \> RNAseq.yml```  
 Then activate it:  
-	\`\`\`conda activate RNAseq or source /absolute/path/to/environmentbinaries/activate RNAseq\`\`\`
+	```conda activate RNAseq or source /absolute/path/to/environmentbinaries/activate RNAseq```
 
 ## About the environment
 
@@ -245,7 +245,7 @@ zlib                      1.3.1                hb9d3cd8\_2    conda-forge
 zstandard                 0.23.0          py313h536fd9c\_1    conda-forge  
 zstd                      1.5.7                hb8e6e7a\_1    conda-forge
 
-## Folder specifications
+# Folder specifications
 
 Below, the contents of each folder and what each script does will be explained in detail. However, each script has a more detailed explanation of each command and tool option, as well as the exact commands used to run each one, in the header.
 
@@ -273,7 +273,7 @@ Also it contains two folders:
 ## About the script:
 
 The [symlinks.sh](http://symlinks.sh) script will create symbolic links for those files in this folder.  
-**Usage example: \` symlinks.sh \-d \<absolute/path/to/directory\> \`**  
+**Usage example: ``` symlinks.sh -d <absolute/path/to/directory> ```**  
 Additionally you can write symlinks.sh \-h or symlinks.sh \-v to ask for usage help or to know which version the script is respectively.  
 First the scripts checks whether there are the correct number of arguments provided  
 These arguments are managed using a while-getopts-case loop. Afterwards it will initiate a loop which will read every file in the directory to search for [fastq.gz](http://fastq.gz) files that are not empty and are readable. Finally it will create the symbolic link in the results folder.
@@ -301,7 +301,7 @@ Also it contains two folders:
 
 ## About the script:
 
-**Usage example: \` [pre-fastqc.sh](http://pre-fastqc.sh) \-i \<input\_dir\> \-o \<output\_dir\> \`**  
+**Usage example: ` [pre-fastqc.sh](http://pre-fastqc.sh) -i <input_dir> -o <output_dir> `**  
 Additionally you can write [pre-fastqc.sh](http://pre-fastqc.sh) \-h or [pre-fastqc.sh](http://pre-fastqc.sh) \-v to ask for usage help or to know which version the script is respectively.  
 First the script checks whether there are the correct number of arguments provided.  
 These arguments are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exist, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will run a FastQC analysis of each sample and store its report in the results folder. If this analysis has gone correctly it will print a message on screen.  
@@ -354,7 +354,7 @@ if these two parameters are not provided, this script will run with a minimum qu
 
 ## About the script:
 
-**Usage: \` [fastp.sh](http://fastp.sh)  \-m \<MIN\_QUAL\> \-l \<MIN\_LEN\> \-i \<INPUT\> \-o \<OUTPUT\> \-f \<FASTQC\_DIR\> \-c \<MULTIQC\_DIR\> \`**  
+**Usage: ` [fastp.sh](http://fastp.sh)  -m <MIN_QUAL> -l <MIN_LEN> -i <INPUT> -o <OUTPUT> -f <FASTQC_DIR> -c <MULTIQC_DIR> `**  
 Additionally you can write [fastp.sh](http://fastp.sh) \-h or [fastp.sh](http://fastp.sh) \-v to ask for usage help or to know which version the script is respectively.
 
 These options are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exists, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will filter and trim using the tool fastp to each pair of paired samples.  
@@ -407,7 +407,7 @@ Also it contains two folders:
 ## About the script:
 
 This scripts index genome reference and align reads to the genome reference.  
-**Usage example: \` ./alignment\_script.sh \-d \<input\_reads\_dir\> \-G \<genome/genome.fa\> \-A \<genome/annotation.gtf\> \-o \<out\_dir"\> \`**
+**Usage example: ` ./alignment_script.sh -d <input_reads_dir> -G <genome/genome.fa> -A <genome/annotation.gtf> -o <out_dir"> `**
 
 The bioinformatic tools used are:  
 Hisat2 (alignment tool): [https://github.com/DaehwanKimLab/hisat2](https://github.com/DaehwanKimLab/hisat2)   
@@ -457,7 +457,7 @@ Also it contains two folders:
 ## About the script:
 
 This script counts the number of reads of an alignment.  
-**Usage example: \` ./counts\_alignment.sh \-A \<genome\_annotation.gtf\> \-d \<dir\_sorted\_bam\> \`**
+**Usage example: ` ./counts_alignment.sh -A <genome_annotation.gtf> -d <dir_sorted_bam> `**
 
 The bioinformatic tools used is:
 
@@ -504,8 +504,9 @@ It will create two folders:
 
 Additionally you can download an interactive .html file  and a static pdf file with the results of the analysis by running this command on RStudio console:
 
-\`\`\`{r download-output, eval=FALSE}  
-rmarkdown::render("este\_documento.Rmd", output\_format \= c("html\_document", "pdf\_document"))
+```{r download-output, eval=FALSE}  
+rmarkdown::render("MineDEseq2.Rmd", output_format = c("html_document", "pdf_document"))
+```
 
 ## About the script:
 
