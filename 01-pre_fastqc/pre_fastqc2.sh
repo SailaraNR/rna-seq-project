@@ -95,7 +95,7 @@ fi
 for file in "$input_path"/*; do
         #Checking emptiness of the file
         sample=$(basename "$file") 
-        name=${sample%.*} #output files name (does not have the extension)
+        name=${sample%.*} #Alternative Code: output files name (does not have the extension) It was commented in class as an alternative to basename
         { echo -e "\nChecking if $sample exists and it's not empty" 
         if [[ -f "$file" && -s "$file" ]]; then
             echo "$sample exist and is not empty"  
