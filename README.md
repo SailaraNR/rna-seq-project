@@ -249,6 +249,7 @@ zstd                      1.5.7                hb8e6e7a\_1    conda-forge
 # Folder specifications
 
 Below, the contents of each folder and what each script does will be explained in detail. However, each script has a more detailed explanation of each command and tool option, as well as the exact commands used to run each one, in the header.
+log folders are created in order to make it simpler to evalute whether the script has run correctly and to easily check errors and warning messages.
 
 # 00-raw\_reads
 
