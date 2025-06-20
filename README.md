@@ -260,6 +260,7 @@ Also it contains two folders:
 
 - logs: will contain log files created by the script  
 - results: will contain the symlinks
+- SRR_Accession.txt: contains the accession numbers to download raw sequences using [00-data.sh] file
 
 ## Input data:
 
