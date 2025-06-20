@@ -5,14 +5,40 @@ Date: 18/6/25
 
 ## What is this repository for?
 
-This repository contains a series of directories to follow a RNA-seq analysis workflow. In each directory, there are two main folders: one for logs and other for results. Miniforge3 has to be installed in order to perform the RNAseq.  
-It is built to perform a pair-end RNA-seq analysis with forward and reverse lectures; if you want to use it for single-end samples it won’t work.  
-Due to the nature of the bioinformatic tools used, the stdout of some tools will be redirected to stderr.log by default.  
+This repository contains a series of directories to follow a RNA-seq analysis workflow. In each directory, there are two main folders: one for logs and other for results. Miniforge3 has to be installed in order to perform the RNAseq.
+
+Due to the nature of the bioinformatic tools used, the stdout of some tools will be redirected to stderr.log by default.
+
+This scripts were used in order to perform an analysis of 6 samples obtained from this article:
+
+Panigrahi G, Candia J, Dorsey TH, et al. (2023). Diabetes-associated breast cancer is molecularly distinct and shows a DNA damage repair deficiency. JCI Insight, 8(23): e170105. Publicado el 8 de diciembre de 2023\. doi: 10.1172/jci.insight.170105 [https://pubmed.ncbi.nlm.nih.gov/37906280/](https://pubmed.ncbi.nlm.nih.gov/37906280/)
+
+Then, this workflow is specifically created to obtain the biological processes that are differentially regulated comparing high glucose conditions and low glucose conditions in human breast cancer samples.
+
+Regarding this, it is creted to perform a pair-end RNA-seq analysis with forward and reverse lectures and single-end analysis cannot be perform with these scripts.
+
+## Repository structure
+
+The repository is structured in this way:  
+SRV0
+
+- [README.md](http://README.md)  
+- 00-raw\_reads  
+- 01-pre\_fastq  
+- 02-trimming\_filtering  
+- 03-reads\_alignment  
+- 04-counts\_alignments  
+- 05-Differential\_analysis
+
+Each folder’s content is explained later
+
+## Environment installation
+
 When executing the analysis this RNAseq environment must be activated  
 In order to export the environment to your computer, run this command on the terminal (requires conda or mamba):  
-	mamba env export \> RNAseq.yml  
+	```mamba env export \> RNAseq.yml```  
 Then activate it:  
-	conda activate RNAseq or source /absolute/path/to/environmentbinaries/activate RNAseq
+	\`\`\`conda activate RNAseq or source /absolute/path/to/environmentbinaries/activate RNAseq\`\`\`
 
 ## About the environment
 
@@ -24,6 +50,8 @@ The environment has the following packages:
 - Fastqc (conda install bioconda::fastqc)  
 - Multiqc (conda install bioconda::multiqc)  
 - FeatureCounts (conda install bioconda::subread)
+
+The tools used were chosen because they have been frequently used in previous analyses (tools such as FastQC are considered the standard to perform analysis like this one), for their robustness and ease of use.
 
 More information about the environment (some of them like trimmomatic were used at first, but may not appear in the script. However, they may be helpful for future analysis or test for other RNAseq analysis):
 
@@ -46,8 +74,8 @@ coloredlogs               15.0.1             pyhd8ed1ab\_4    conda-forge
 colormath                 3.0.0              pyhd8ed1ab\_4    conda-forge  
 curl                      8.13.0               h332b0f4\_0    conda-forge  
 expat                     2.6.4                h5888daf\_0    conda-forge  
-fastp                     0.24.1               heae3180\_0    bioconda  
-fastqc                    0.12.1               hdfd78af\_0    bioconda  
+**fastp                     0.24.1               heae3180\_0    bioconda**  
+**fastqc                    0.12.1               hdfd78af\_0    bioconda**  
 font-ttf-dejavu-sans-mono 2.37                 hab24e00\_0    conda-forge  
 font-ttf-inconsolata      3.000                h77eed37\_0    conda-forge  
 font-ttf-source-code-pro  2.038                h77eed37\_0    conda-forge  
@@ -61,7 +89,7 @@ git                       2.49.0          pl5321h59d505e\_0    conda-forge
 graphite2                 1.3.13            h59595ed\_1003    conda-forge  
 h2                        4.2.0              pyhd8ed1ab\_0    conda-forge  
 harfbuzz                  10.4.0               h76408a6\_0    conda-forge  
-hisat2                    2.2.1                h503566f\_8    bioconda  
+**hisat2                    2.2.1                h503566f\_8    bioconda**  
 hpack                     4.1.0              pyhd8ed1ab\_0    conda-forge  
 htslib                    1.21                 h566b1c6\_1    bioconda  
 humanfriendly             10.0               pyh707e725\_8    conda-forge  
@@ -117,7 +145,7 @@ markdown-it-py            3.0.0              pyhd8ed1ab\_1    conda-forge
 markupsafe                3.0.2           py313h8060acc\_1    conda-forge  
 mathjax                   2.7.7                ha770c72\_3    conda-forge  
 mdurl                     0.1.2              pyhd8ed1ab\_1    conda-forge  
-multiqc                   1.27.1             pyhdfd78af\_0    bioconda  
+**multiqc                   1.27.1             pyhdfd78af\_0    bioconda**  
 narwhals                  1.30.0             pyhd8ed1ab\_0    conda-forge  
 natsort                   8.4.0              pyh29332c3\_1    conda-forge  
 ncbi-vdb                  3.2.1                h9948957\_0    bioconda  
@@ -188,8 +216,8 @@ samtools                  1.21                 h96c455f\_1    bioconda
 seqtk                     1.4                  h577a1d6\_3    bioconda  
 spectra                   0.0.11             pyhd8ed1ab\_2    conda-forge  
 sqlite                    3.49.1               h9eae976\_1    conda-forge  
-sra-tools                 3.2.1                h4304569\_0    bioconda  
-subread                   2.1.1                h577a1d6\_0    bioconda  
+**sra-tools                 3.2.1                h4304569\_0    bioconda**  
+**subread                   2.1.1                h577a1d6\_0    bioconda**  
 tiktoken                  0.9.0           py313h3f234b3\_0    conda-forge  
 tk                        8.6.13          noxft\_h4845f30\_101    conda-forge  
 tqdm                      4.67.1             pyhd8ed1ab\_1    conda-forge  
@@ -217,7 +245,11 @@ zlib                      1.3.1                hb9d3cd8\_2    conda-forge
 zstandard                 0.23.0          py313h536fd9c\_1    conda-forge  
 zstd                      1.5.7                hb8e6e7a\_1    conda-forge
 
-# 00-raw reads
+## Folder specifications
+
+Below, the contents of each folder and what each script does will be explained in detail. However, each script has a more detailed explanation of each command and tool option, as well as the exact commands used to run each one, in the header.
+
+# 00-raw\_reads
 
 This folder contains two scripts. The first one: [00-data.sh](http://00-data.sh) accepts a .txt file with the accession numbers of the raw sequences of the samples from a sequencing experiment.  
 The second script [symlinks.sh](http://symlinks.sh) is the one used in the project which creates symbolic links for .[fastqc.gz](http://fastqc.gz) files. One of this two scripts must be ran in order to star the RNAseq data analysis.
@@ -241,7 +273,7 @@ Also it contains two folders:
 ## About the script:
 
 The [symlinks.sh](http://symlinks.sh) script will create symbolic links for those files in this folder.  
-**Usage example: symlinks.sh \-d \<absolute/path/to/directory\>**  
+**Usage example: \` symlinks.sh \-d \<absolute/path/to/directory\> \`**  
 Additionally you can write symlinks.sh \-h or symlinks.sh \-v to ask for usage help or to know which version the script is respectively.  
 First the scripts checks whether there are the correct number of arguments provided  
 These arguments are managed using a while-getopts-case loop. Afterwards it will initiate a loop which will read every file in the directory to search for [fastq.gz](http://fastq.gz) files that are not empty and are readable. Finally it will create the symbolic link in the results folder.
@@ -269,7 +301,7 @@ Also it contains two folders:
 
 ## About the script:
 
-**Usage example: [pre-fastqc.sh](http://pre-fastqc.sh) \-i \<input\_dir\> \-o \<output\_dir\>**  
+**Usage example: \` [pre-fastqc.sh](http://pre-fastqc.sh) \-i \<input\_dir\> \-o \<output\_dir\> \`**  
 Additionally you can write [pre-fastqc.sh](http://pre-fastqc.sh) \-h or [pre-fastqc.sh](http://pre-fastqc.sh) \-v to ask for usage help or to know which version the script is respectively.  
 First the script checks whether there are the correct number of arguments provided.  
 These arguments are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exist, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will run a FastQC analysis of each sample and store its report in the results folder. If this analysis has gone correctly it will print a message on screen.  
@@ -322,7 +354,7 @@ if these two parameters are not provided, this script will run with a minimum qu
 
 ## About the script:
 
-**Usage: [fastp.sh](http://fastp.sh)  \-m \<MIN\_QUAL\> \-l \<MIN\_LEN\> \-i \<INPUT\> \-o \<OUTPUT\> \-f \<FASTQC\_DIR\> \-c \<MULTIQC\_DIR\>**  
+**Usage: \` [fastp.sh](http://fastp.sh)  \-m \<MIN\_QUAL\> \-l \<MIN\_LEN\> \-i \<INPUT\> \-o \<OUTPUT\> \-f \<FASTQC\_DIR\> \-c \<MULTIQC\_DIR\> \`**  
 Additionally you can write [fastp.sh](http://fastp.sh) \-h or [fastp.sh](http://fastp.sh) \-v to ask for usage help or to know which version the script is respectively.
 
 These options are managed using a while-getopts-case loop. Afterwards it will check if the directories provided exists, if not they will be created. Then it will initiate a loop which will read every file in the input directory to search for.[fastq.gz](http://fastq.gz) files that are not empty and are readable. Then it will filter and trim using the tool fastp to each pair of paired samples.  
@@ -375,7 +407,7 @@ Also it contains two folders:
 ## About the script:
 
 This scripts index genome reference and align reads to the genome reference.  
-**Usage example: ./alignment\_script.sh \-d \<input\_reads\_dir\> \-G \<genome/genome.fa\> \-A \<genome/annotation.gtf\> \-o \<out\_dir"\>**
+**Usage example: \` ./alignment\_script.sh \-d \<input\_reads\_dir\> \-G \<genome/genome.fa\> \-A \<genome/annotation.gtf\> \-o \<out\_dir"\> \`**
 
 The bioinformatic tools used are:  
 Hisat2 (alignment tool): [https://github.com/DaehwanKimLab/hisat2](https://github.com/DaehwanKimLab/hisat2)   
@@ -425,7 +457,7 @@ Also it contains two folders:
 ## About the script:
 
 This script counts the number of reads of an alignment.  
-**Usage example: ./counts\_alignment.sh \-A \<genome\_annotation.gtf\> \-d \<dir\_sorted\_bam\>**
+**Usage example: \` ./counts\_alignment.sh \-A \<genome\_annotation.gtf\> \-d \<dir\_sorted\_bam\> \`**
 
 The bioinformatic tools used is:
 
@@ -444,4 +476,39 @@ And these files containing stdout and stderr of the specific analysis for each s
 
 - sample.err   
 - sample.out
+
+# 05-Differential\_analysis
+
+This directory contains an R script that will execute a differential expression analysis using the table of counts generated by FeatureCounts. Then it will run a Gene Ontology enrichment analysis.  
+You will need to run this script using Rstudio so that all of the packages will be installed correctly and the analysis runs correctly.  
+It also contains the file metadata.csv that will be needed to run R script. This file is specific for the analysis we have done and possibly not useful for other analysis.
+
+## Input data:
+
+- This script accepts  .txt files containing the table of results created by the analysis of FeatureCounts. For that the user must introduce the absolute path to the folder containing the folder where the FeatureCounts matrixes are stored and the absolute path where the results will be downloaded. These paths should be specified at the beginning of the script. 
+
+## Output data:
+
+It will create two folders:
+
+- DEseq2/Condition\_HighGlucose\_vs\_LowGlucose: it will contain a table containing the analysis of results of DEseq2 analysis comparing High and Low glucose conditions  
+- Functional\_Analysis\_GO\_BP.csv: Functional analysis results will be stored in this file   
+- plots folder: This folder contains plots generated by the script in a .png format. Should include.  
+  - Counts histogram (filtered and unfiltered)  
+  - Dendrogram  
+  - Heatmap using Pearson Correlation  
+  - PCA  
+  - MA plot  
+  - Volcano plot  
+  - GO barplot
+
+Additionally you can download an interactive .html file  and a static pdf file with the results of the analysis by running this command on RStudio console:
+
+\`\`\`{r download-output, eval=FALSE}  
+rmarkdown::render("este\_documento.Rmd", output\_format \= c("html\_document", "pdf\_document"))
+
+## About the script:
+
+This script installs every package that will be needed to execute the analysis if they are not already installed in the users’ computer. To continue it will read the directory where results will be downloaded and the directory where FeatureCounts matrices are stored (These variables should be filled manually). Then it will process FeatureCount files by creating a matrix especially prepared to be read by DEseq2.  
+Later, it will perform a pre-filter of genes before running DEseq2. It will remove genes with low number of counts (\< 10 counts) to reduce noise and improve statistical quality. Then it performs the differential expression analysis using DESeq2 (including normalization, hierarchical clustering, Pearson correlations and PCA plots to help visualize data quality). The comparison was executed comparing HighGlucose and Low glucose conditions and stored in a csv file. Additionally an MA plot and a volcano plot will be plotted to help visualize upregulated, downregulated and significant differences among gene expression. Finally, a GO enrichment analysis will be carried out.
 
