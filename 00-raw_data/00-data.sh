@@ -91,7 +91,7 @@ while read -r ACCESSION; do
   echo "Downloading $ACCESSION" 
   prefetch "$ACCESSION" 
   fasterq-dump --split-files "$ACCESSION"
-  echo "Compriming ${ACCESSION}.fastq..."
+  echo "Compressing ${ACCESSION}.fastq..."
   gzip "${ACCESSION}"*.fastq
 done < "$file"
 
