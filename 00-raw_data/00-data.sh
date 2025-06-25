@@ -8,7 +8,7 @@
 #Raw sequences will be downloaded in the current directory
 
 ############################################################################################
-readonly version= Version 2.3
+readonly version="Version 1.0"
 # Initializing empty logs
 cat /dev/null > logs/*.out
 cat /dev/null > logs/*.err
@@ -73,7 +73,7 @@ elif [ -r "$file" ]; then
 elif [ -x "$file" ]; then
         echo "File is executable but not readable" >&2
         chmod +r "$file"
-        echo "Fieexd" >&2
+        echo "Fiexed" >&2
 else
         echo "File is neither readable nor executable. Fixing" >&2
         chmod +rx "$file"
@@ -90,9 +90,15 @@ while read -r ACCESSION; do
   [[ -z "$ACCESSION" ]] && continue 
   echo "Downloading $ACCESSION" 
   prefetch "$ACCESSION" 
-  fasterq-dump --split-files "$ACCESSION" 
+  fasterq-dump --split-files "$ACCESSION"
+  echo "Compriming ${ACCESSION}.fastq..."
+  gzip "${ACCESSION}"*.fastq
 done < "$file"
-rm -r *.sra 
+
+echo "Remoning .sra files..."
+rm -r *.sra
 
 echo "Finished. FASTQ files downloaded in $(pwd)" 
 } 2>> >(tee -a logs/all_${name}.err) >> >(tee -a logs/all_${name}.out)
+
+echo "Program finished."
